@@ -12,7 +12,12 @@ export const userRouter = createTRPCRouter({
 
   updateUserData: protectedProcedure
     .input(
-      z.object({ cursors: z.number(), clinks: z.number(), cps: z.number() }),
+      z.object({
+        cursors: z.number(),
+        clinks: z.number(),
+        cps: z.number(),
+        rows: z.number(),
+      }),
     )
     .mutation(({ ctx, input }) => {
       return ctx.prisma.user.update({
@@ -23,6 +28,7 @@ export const userRouter = createTRPCRouter({
           stored_clinks: input.clinks,
           clinks_per_second: input.cps,
           cursors: input.cursors,
+          rows: input.rows,
         },
       });
     }),

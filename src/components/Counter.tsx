@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '~/utils/api';
+import Canvas from './Canvas';
 
 export default function Counter() {
   const [localState, setLocalState] = useState({
     localClinks: 0,
     localCps: 0,
     localCursors: 0,
+    localRows: 8,
     setClinks: (clinks: number) => {
       setLocalState((prevState) => ({
         ...prevState,
@@ -24,11 +26,18 @@ export default function Counter() {
         cursors,
       }));
     },
+    setRows: (rows: number) => {
+      setLocalState((prevState) => ({
+        ...prevState,
+        rows,
+      }));
+    },
   });
-  const { localClinks, localCps, localCursors } = localState;
+  const { localClinks, localCps, localCursors, localRows } = localState;
 
   const { data: user_data } = api.user.getUserData.useQuery();
   const updateUserData = api.user.updateUserData.useMutation();
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const localStateRef = useRef(localState);
 
@@ -37,14 +46,19 @@ export default function Counter() {
   });
 
   useEffect(() => {
-    if (user_data) {
-      setLocalState((prevState) => ({
-        ...prevState,
-        localClinks: user_data.stored_clinks,
-        localCps: user_data.clinks_per_second,
-        localCursors: user_data.cursors,
-      }));
+    if (!hasLoaded) {
+      if (user_data) {
+        setLocalState((prevState) => ({
+          ...prevState,
+          localClinks: user_data.stored_clinks,
+          localCps: user_data.clinks_per_second,
+          localCursors: user_data.cursors,
+          localRows: user_data.rows,
+        }));
+        setHasLoaded(true);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user_data]);
 
   useEffect(() => {
@@ -53,11 +67,11 @@ export default function Counter() {
         clinks: Math.round(localStateRef.current.localClinks),
         cps: localStateRef.current.localCps,
         cursors: localStateRef.current.localCursors,
+        rows: localStateRef.current.localRows,
       });
-    }, 5000);
+    }, 30000);
 
     const autoIncrementInterval = setInterval(() => {
-      console.log('increment');
       setLocalState((prevState) => ({
         ...prevState,
         localClinks:
@@ -70,11 +84,14 @@ export default function Counter() {
       clearInterval(autoSaveInterval);
       clearInterval(autoIncrementInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="mt-12 flex flex-col gap-4">
-      <div>
+      <Canvas rows={localRows} />
+
+      {/* <div>
         <p className="text-2xl text-seasalt">
           StoredClinks: {user_data?.stored_clinks ?? 0}
         </p>
@@ -84,15 +101,19 @@ export default function Counter() {
         <p className="text-2xl text-seasalt">
           StoredCursors: {user_data?.cursors ?? 0}
         </p>
+        <p className="text-2xl text-seasalt">
+          StoredRows: {user_data?.rows ?? 0}
+        </p>
         <p className="text-2xl text-green-500">
           localClinks: {Math.round(localClinks)}
         </p>
         <p className="text-2xl text-green-500">LocalCPS: {localCps}</p>
         <p className="text-2xl text-green-500">LocalCursors: {localCursors}</p>
-      </div>
+        <p className="text-2xl text-green-500">LocalRows: {localRows}</p>
+      </div> */}
 
-      <button
-        className="rounded-lg bg-green-500 p-2"
+      {/* <button
+        className="w-48 rounded-lg bg-green-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
@@ -104,7 +125,7 @@ export default function Counter() {
       </button>
 
       <button
-        className="rounded-lg bg-purple-500 p-2"
+        className="w-48 rounded-lg bg-purple-500 p-2"
         onClick={() => {
           if (localClinks >= 10) {
             setLocalState((prevState) => ({
@@ -117,16 +138,54 @@ export default function Counter() {
         }}
       >
         +1 Cursor(1 CPS) <br></br> (Cost: 10 Clink)
+      </button> */}
+
+      <button
+        className="w-48 rounded-lg bg-yellow-500 p-2"
+        onClick={() => {
+          setLocalState((prevState) => ({
+            ...prevState,
+            localRows: prevState.localRows + 1,
+          }));
+        }}
+      >
+        +1 Row
+      </button>
+      <button
+        className="w-48 rounded-lg bg-yellow-500 p-2"
+        onClick={() => {
+          setLocalState((prevState) => ({
+            ...prevState,
+            localRows: prevState.localRows - 1,
+          }));
+        }}
+      >
+        -1 Row
       </button>
 
       <button
-        className="rounded-lg bg-red-500 p-2"
+        className="w-48 rounded-lg bg-green-500 p-2"
+        onClick={() => {
+          updateUserData.mutate({
+            clinks: Math.round(localStateRef.current.localClinks),
+            cps: localStateRef.current.localCps,
+            cursors: localStateRef.current.localCursors,
+            rows: localStateRef.current.localRows,
+          });
+        }}
+      >
+        Save
+      </button>
+
+      <button
+        className="w-48 rounded-lg bg-red-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
             localClinks: 0,
             localCps: 0,
             localCursors: 0,
+            localRows: 8,
           }));
         }}
       >
