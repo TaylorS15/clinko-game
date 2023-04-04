@@ -16,6 +16,7 @@ export default function SignIn({
           <button
             key={provider.name}
             className="w-64 rounded-full bg-seasalt/10 px-10 py-3 text-center font-semibold text-seasalt no-underline transition hover:bg-seasalt/20"
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onClick={() => signIn(provider.id)}
           >
             Sign in with {provider.name}
