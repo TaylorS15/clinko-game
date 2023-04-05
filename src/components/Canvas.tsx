@@ -18,10 +18,6 @@ export default function Canvas({ rows }: { rows: number }) {
   );
 
   useEffect(() => {
-    setBucketCollisions(new Array(rows + 3).fill(0));
-  }, [rows]);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     /*
      * Calculate game width with max width of 800px
@@ -34,15 +30,14 @@ export default function Canvas({ rows }: { rows: number }) {
      * Ball and pin radius are 2.167% of the game width (Found through trial and error at 600px game width with rows 8)
      * Ball and pin radius are the same to result in correct distribution of balls in buckets (Possibly could change)
      */
-    const ballRadius = gameWidth * 0.02167; //rows 8
-    // const ballRadius = gameWidth * 0.0175; //rows 9
+    // const ballRadius = gameWidth * 0.02167; //rows 8
+    const ballRadius = gameWidth * 0.0175; //rows 9
     const pinRadius = ballRadius;
 
     /*
      * Constants for ball and pin values
      * Found through trial and error
      */
-
     const restitution = 0.5;
     const friction = 0;
     const minXBallSpawn = gameWidth * 0.45;
@@ -120,8 +115,8 @@ export default function Canvas({ rows }: { rows: number }) {
        */
       for (let i = 2; i < rows + 2; i++) {
         for (let j = 0; j <= i; j++) {
-          const pinConstant = gameWidth * 0.09167;
-          // const pinConstant = gameWidth * 0.078;
+          // const pinConstant = gameWidth * 0.09167;
+          const pinConstant = gameWidth * 0.078;
 
           const x = gameWidth / 2 + (j - i / 2) * pinConstant;
           const y = -50 + i * pinConstant;
@@ -147,12 +142,12 @@ export default function Canvas({ rows }: { rows: number }) {
       const buckets: Matter.Body[] = [];
 
       for (let i = 0; i < numOfBuckets; i++) {
-        const bucketWidth = gameWidth * 0.09;
-        // const bucketWidth = gameWidth * 0.083;
+        // const bucketWidth = gameWidth * 0.09;
+        const bucketWidth = gameWidth * 0.083;
 
         const bucket = Bodies.rectangle(
           bucketWidth / 2 + i * bucketWidth,
-          gameWidth * 0.8,
+          gameWidth * 0.9,
           bucketWidth * 0.95,
           5,
           {
@@ -211,6 +206,8 @@ export default function Canvas({ rows }: { rows: number }) {
       Runner.run(engine);
       Render.run(render);
 
+      setBucketCollisions(new Array(rows + 3).fill(0));
+
       return () => {
         Render.stop(render);
         Events.off(engine, 'collisionActive', handleCollision);
@@ -222,16 +219,6 @@ export default function Canvas({ rows }: { rows: number }) {
     <>
       <div className="ml-8 flex text-2xl font-bold text-seasalt">
         {bucketCollisions.reduce((a, b) => a + b, 0)}
-        {/* {', '}
-        <div className="flex gap-8">
-          {activeBalls.map((ball, index) => {
-            return (
-              <div key={index} className="text-2xl font-bold text-seasalt">
-                {ball.x} {ball.y}
-              </div>
-            );
-          })}
-        </div> */}
       </div>
       <div className="ml-4 flex">
         {bucketCollisions.map((bucketCollision, index) => (

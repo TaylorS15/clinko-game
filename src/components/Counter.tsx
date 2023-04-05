@@ -7,7 +7,7 @@ export default function Counter() {
     localClinks: 0,
     localCps: 0,
     localCursors: 0,
-    localRows: 8,
+    localRows: 9,
     setClinks: (clinks: number) => {
       setLocalState((prevState) => ({
         ...prevState,
@@ -113,7 +113,7 @@ export default function Counter() {
       </div> */}
 
       {/* <button
-        className="w-48 rounded-lg bg-green-500 p-2"
+        className="w-48 ml-8 rounded-lg bg-green-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
@@ -125,7 +125,7 @@ export default function Counter() {
       </button>
 
       <button
-        className="w-48 rounded-lg bg-purple-500 p-2"
+        className="w-48 ml-8 rounded-lg bg-purple-500 p-2"
         onClick={() => {
           if (localClinks >= 10) {
             setLocalState((prevState) => ({
@@ -141,7 +141,7 @@ export default function Counter() {
       </button> */}
 
       <button
-        className="w-48 rounded-lg bg-yellow-500 p-2"
+        className="ml-8 w-48 rounded-lg bg-yellow-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
@@ -152,7 +152,7 @@ export default function Counter() {
         +1 Row
       </button>
       <button
-        className="w-48 rounded-lg bg-yellow-500 p-2"
+        className="ml-8 w-48 rounded-lg bg-yellow-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
@@ -164,7 +164,7 @@ export default function Counter() {
       </button>
 
       <button
-        className="w-48 rounded-lg bg-green-500 p-2"
+        className="ml-8 w-48 rounded-lg bg-green-500 p-2"
         onClick={() => {
           updateUserData.mutate({
             clinks: Math.round(localStateRef.current.localClinks),
@@ -178,7 +178,7 @@ export default function Counter() {
       </button>
 
       <button
-        className="w-48 rounded-lg bg-red-500 p-2"
+        className="ml-8 w-48 rounded-lg bg-red-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
