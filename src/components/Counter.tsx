@@ -7,7 +7,7 @@ export default function Counter() {
     localClinks: 0,
     localCps: 0,
     localCursors: 0,
-    localRows: 9,
+    localRows: 8,
     setClinks: (clinks: number) => {
       setLocalState((prevState) => ({
         ...prevState,
@@ -33,6 +33,8 @@ export default function Counter() {
       }));
     },
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { localClinks, localCps, localCursors, localRows } = localState;
 
   const { data: user_data } = api.user.getUserData.useQuery();
@@ -69,7 +71,7 @@ export default function Counter() {
         cursors: localStateRef.current.localCursors,
         rows: localStateRef.current.localRows,
       });
-    }, 30000);
+    }, 300000);
 
     const autoIncrementInterval = setInterval(() => {
       setLocalState((prevState) => ({
@@ -88,10 +90,10 @@ export default function Counter() {
   }, []);
 
   return (
-    <div className="mt-12 flex flex-col gap-4">
+    <div className="mt-12 flex flex-col gap-2">
       <Canvas rows={localRows} />
 
-      {/* <div>
+      <div>
         <p className="text-2xl text-seasalt">
           StoredClinks: {user_data?.stored_clinks ?? 0}
         </p>
@@ -110,10 +112,10 @@ export default function Counter() {
         <p className="text-2xl text-green-500">LocalCPS: {localCps}</p>
         <p className="text-2xl text-green-500">LocalCursors: {localCursors}</p>
         <p className="text-2xl text-green-500">LocalRows: {localRows}</p>
-      </div> */}
+      </div>
 
-      {/* <button
-        className="w-48 ml-8 rounded-lg bg-green-500 p-2"
+      <button
+        className="ml-8 w-48 rounded-lg bg-green-500 p-2"
         onClick={() => {
           setLocalState((prevState) => ({
             ...prevState,
@@ -125,7 +127,7 @@ export default function Counter() {
       </button>
 
       <button
-        className="w-48 ml-8 rounded-lg bg-purple-500 p-2"
+        className="ml-8 w-48 rounded-lg bg-purple-500 p-2"
         onClick={() => {
           if (localClinks >= 10) {
             setLocalState((prevState) => ({
@@ -138,15 +140,16 @@ export default function Counter() {
         }}
       >
         +1 Cursor(1 CPS) <br></br> (Cost: 10 Clink)
-      </button> */}
+      </button>
 
       <button
         className="ml-8 w-48 rounded-lg bg-yellow-500 p-2"
         onClick={() => {
-          setLocalState((prevState) => ({
-            ...prevState,
-            localRows: prevState.localRows + 1,
-          }));
+          if (localState.localRows < 19)
+            setLocalState((prevState) => ({
+              ...prevState,
+              localRows: prevState.localRows + 1,
+            }));
         }}
       >
         +1 Row
@@ -154,10 +157,11 @@ export default function Counter() {
       <button
         className="ml-8 w-48 rounded-lg bg-yellow-500 p-2"
         onClick={() => {
-          setLocalState((prevState) => ({
-            ...prevState,
-            localRows: prevState.localRows - 1,
-          }));
+          if (localState.localRows > 8)
+            setLocalState((prevState) => ({
+              ...prevState,
+              localRows: prevState.localRows - 1,
+            }));
         }}
       >
         -1 Row
