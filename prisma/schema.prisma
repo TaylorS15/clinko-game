@@ -50,7 +50,6 @@ model User {
     accounts      Account[]
     sessions      Session[]
     stored_clinks         Int       @default(0)
-    clinks_per_second     Float     @default(0)
     cursors              Int       @default(0)
     rows                 Int       @default(8)
 }

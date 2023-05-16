@@ -15,7 +15,6 @@ export const userRouter = createTRPCRouter({
       z.object({
         cursors: z.number(),
         clinks: z.number(),
-        cps: z.number(),
         rows: z.number(),
       }),
     )
@@ -26,7 +25,6 @@ export const userRouter = createTRPCRouter({
         },
         data: {
           stored_clinks: input.clinks,
-          clinks_per_second: input.cps,
           cursors: input.cursors,
           rows: input.rows,
         },

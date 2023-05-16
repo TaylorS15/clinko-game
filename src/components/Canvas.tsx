@@ -10,9 +10,21 @@ import {
 } from 'matter-js';
 import { useEffect, useRef, useState } from 'react';
 
-export default function Canvas({ rows }: { rows: number }) {
+export default function Canvas({
+  rows,
+  localStateRef,
+}: {
+  rows: number;
+  localStateRef: React.MutableRefObject<{
+    localClinks: number;
+    localCursors: number;
+    localRows: number;
+    setClinks: (clinks: number) => void;
+    setCursors: (cursors: number) => void;
+    setRows: (rows: number) => void;
+  }>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   const [bucketCollisions, setBucketCollisions] = useState<number[]>(
     new Array(rows + 1).fill(0),
   );
@@ -48,7 +60,7 @@ export default function Canvas({ rows }: { rows: number }) {
     const maxXBallSpawn = gameWidth / 2 + pinRadius * 9;
     const minYBallSpawn = gameWidth - 25 - ySpacingA * (rows - 1);
     const maxYBallSpawn =
-      gameWidth - 25 - ySpacingA * (rows - 1) - ballRadius * 2;
+      gameWidth - 25 - ySpacingA * (rows - 1) - ballRadius * 5;
 
     /**
      * Function to get a random integer between min and max
@@ -166,7 +178,6 @@ export default function Canvas({ rows }: { rows: number }) {
         label: 'Side bucket',
       },
     );
-
     const rightSideBucket = Bodies.rectangle(
       gameWidth + 126 - bucketWidth,
       gameWidth,
@@ -181,52 +192,32 @@ export default function Canvas({ rows }: { rows: number }) {
     );
 
     /**
-     * Boundary to keep balls within game window
-     * wallLeft & wallRight are currently disabled
+     * Pyramid walls
      */
-    const wallLeft = Bodies.rectangle(-9, gameWidth / 2, 20, gameWidth, {
-      isStatic: true,
-      render: { fillStyle: '#48E5C2' },
-      slop: 0,
-    });
-
-    const wallRight = Bodies.rectangle(
-      gameWidth + 9,
-      gameWidth / 2,
-      20,
-      gameWidth,
-      {
-        isStatic: true,
-        render: { fillStyle: '#48E5C2' },
-        slop: 0,
-      },
-    );
-
     const pyramidWallLeft = Bodies.rectangle(
       pinRadius * 6 + pinRadius * 10 * (rows / 4),
       gameWidth - 35 - ySpacingA * (rows / 2),
       3,
-      Math.sqrt(ySpacingC) * rows,
+      Math.sqrt(ySpacingC) * rows - 25,
       {
         isStatic: true,
         render: { fillStyle: '#48E5C2' },
         slop: 0,
       },
     );
-    Body.rotate(pyramidWallLeft, 0.53);
-
     const pyramidWallRight = Bodies.rectangle(
       gameWidth - pinRadius * 6 - pinRadius * 10 * (rows / 4),
       gameWidth - 35 - ySpacingA * (rows / 2),
       3,
-      Math.sqrt(ySpacingC) * rows,
+      Math.sqrt(ySpacingC) * rows - 25,
       {
         isStatic: true,
         render: { fillStyle: '#48E5C2' },
         slop: 0,
       },
     );
-    Body.rotate(pyramidWallRight, -0.53);
+    Body.rotate(pyramidWallLeft, 0.52);
+    Body.rotate(pyramidWallRight, -0.52);
 
     /**
      * Debug sensor lines
@@ -242,7 +233,6 @@ export default function Canvas({ rows }: { rows: number }) {
         isSensor: true,
       },
     );
-
     const debugTopLine = Bodies.rectangle(
       gameWidth / 2,
       gameWidth - 25 - ySpacingA * (rows - 1),
@@ -254,7 +244,6 @@ export default function Canvas({ rows }: { rows: number }) {
         isSensor: true,
       },
     );
-
     const debugLeftBallSpawn = Bodies.rectangle(
       minXBallSpawn,
       minYBallSpawn - ballRadius,
@@ -266,7 +255,6 @@ export default function Canvas({ rows }: { rows: number }) {
         isSensor: true,
       },
     );
-
     const debugRightBallSpawn = Bodies.rectangle(
       maxXBallSpawn,
       minYBallSpawn - ballRadius,
@@ -295,7 +283,6 @@ export default function Canvas({ rows }: { rows: number }) {
             pair.bodyA.label === 'Bucket' ? pair.bodyA : pair.bodyB;
 
           Composite.remove(world, ball);
-
           buckets.map((_bucket, index) => {
             if (_bucket.id === bucket.id) {
               setBucketCollisions((prevState) => {
@@ -305,6 +292,9 @@ export default function Canvas({ rows }: { rows: number }) {
               });
             }
           });
+          localStateRef.current.setClinks(
+            localStateRef.current.localClinks + 1,
+          );
         }
 
         if (labels.includes('Ball') && labels.includes('Side bucket')) {
@@ -364,6 +354,8 @@ export default function Canvas({ rows }: { rows: number }) {
           rightSideBucket,
           // wallLeft,
           // wallRight,
+          pyramidWallLeft,
+          pyramidWallRight,
         ]);
     Events.on(engine, 'collisionActive', handleCollision);
     Runner.run(runner, engine);
@@ -406,19 +398,33 @@ export default function Canvas({ rows }: { rows: number }) {
       debugMode
         ? Composite.remove(world, [
             ...buckets,
-            wallLeft,
-            wallRight,
+            ...pins,
+            leftSideBucket,
+            rightSideBucket,
+            // wallLeft,
+            // wallRight,
             pyramidWallLeft,
+            pyramidWallRight,
             debugCenterLine,
             debugTopLine,
             debugLeftBallSpawn,
             debugRightBallSpawn,
           ])
-        : Composite.remove(world, [...buckets, wallLeft, wallRight]);
+        : Composite.remove(world, [
+            ...buckets,
+            ...pins,
+            leftSideBucket,
+            rightSideBucket,
+            // wallLeft,
+            // wallRight,
+            pyramidWallLeft,
+            pyramidWallRight,
+          ]);
       Events.off(engine, 'collisionActive', handleCollision);
       Runner.stop(runner);
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, debugMode]);
 
   return (
@@ -460,7 +466,7 @@ export default function Canvas({ rows }: { rows: number }) {
  * Bucket %'s per number of rows
  * Values are from outside bucket to middle bucket
  * Bucket pairs are merged into one value because they often have slightly different %'s and can be averaged together when scoring
- * Rows: 8 - [11.6, 13.28, 26.35, 34.5]
+ * Rows: 8 - [11.6, 13.28, 26.35, 34.5, 17.25]
  * Rows: 12 - [1.54, 4.79, 7.96, 14.79, 23.95, 30.55, 16.59]
  * Rows: 19 - [15.52, 13.45, 20.64, 22.21]
  */
