@@ -396,7 +396,7 @@ export default function Canvas({
     return () => {
       Render.stop(render);
       debugMode
-        ? Composite.remove(world, [
+        ? Composite.remove(world, {
             ...buckets,
             ...pins,
             leftSideBucket,
@@ -409,8 +409,8 @@ export default function Canvas({
             debugTopLine,
             debugLeftBallSpawn,
             debugRightBallSpawn,
-          ])
-        : Composite.remove(world, [
+          })
+        : Composite.remove(world, {
             ...buckets,
             ...pins,
             leftSideBucket,
@@ -419,7 +419,7 @@ export default function Canvas({
             // wallRight,
             pyramidWallLeft,
             pyramidWallRight,
-          ]);
+          });
       Events.off(engine, 'collisionActive', handleCollision);
       Runner.stop(runner);
       clearInterval(interval);
