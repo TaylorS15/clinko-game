@@ -34,9 +34,7 @@ export default function Canvas({
     const canvas = canvasRef.current;
 
     /**
-     * Game width set to 449px since physics change based on canvas size.
-     * Annoying bug in matterJS
-     * 449px was chosen since it can appear on the smallest screens and have a center pixel
+     * 449px game width was chosen since it can appear on the smallest screens and have a center pixel
      */
     const gameWidth = 449;
 
@@ -324,7 +322,7 @@ export default function Canvas({
           },
         },
       );
-      // balls.push(ball);
+
       Composite.add(world, ball);
     });
 
@@ -338,8 +336,6 @@ export default function Canvas({
           ...pins,
           leftSideBucket,
           rightSideBucket,
-          // wallLeft,
-          // wallRight,
           pyramidWallLeft,
           pyramidWallRight,
           debugCenterLine,
@@ -352,8 +348,6 @@ export default function Canvas({
           ...pins,
           leftSideBucket,
           rightSideBucket,
-          // wallLeft,
-          // wallRight,
           pyramidWallLeft,
           pyramidWallRight,
         ]);
@@ -386,7 +380,6 @@ export default function Canvas({
         },
       );
 
-      // balls.push(ball);
       Composite.add(world, ball);
     }, 1);
 
@@ -396,30 +389,26 @@ export default function Canvas({
     return () => {
       Render.stop(render);
       debugMode
-        ? Composite.remove(world, {
+        ? Composite.remove(world, [
             ...buckets,
             ...pins,
             leftSideBucket,
             rightSideBucket,
-            // wallLeft,
-            // wallRight,
             pyramidWallLeft,
             pyramidWallRight,
             debugCenterLine,
             debugTopLine,
             debugLeftBallSpawn,
             debugRightBallSpawn,
-          })
-        : Composite.remove(world, {
+          ])
+        : Composite.remove(world, [
             ...buckets,
             ...pins,
             leftSideBucket,
             rightSideBucket,
-            // wallLeft,
-            // wallRight,
             pyramidWallLeft,
             pyramidWallRight,
-          });
+          ]);
       Events.off(engine, 'collisionActive', handleCollision);
       Runner.stop(runner);
       clearInterval(interval);
