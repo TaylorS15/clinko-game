@@ -94,7 +94,7 @@ export default function Canvas({
     });
     const world = engine.world;
     const render = Render.create({
-      canvas,
+      canvas: canvas as HTMLCanvasElement,
       engine,
       options: {
         width: gameWidth,
