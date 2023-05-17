@@ -389,7 +389,8 @@ export default function Canvas({
     return () => {
       Render.stop(render);
       debugMode
-        ? Composite.remove(world, [
+        ? //@ts-expect-error index.d.ts file is missing ability to pass array to Composite.remove
+          Composite.remove(world, [
             ...buckets,
             ...pins,
             leftSideBucket,
@@ -401,7 +402,8 @@ export default function Canvas({
             debugLeftBallSpawn,
             debugRightBallSpawn,
           ])
-        : Composite.remove(world, [
+        : //@ts-expect-error index.d.ts file is missing ability to pass array to Composite.remove
+          Composite.remove(world, [
             ...buckets,
             ...pins,
             leftSideBucket,
