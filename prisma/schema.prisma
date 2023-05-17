@@ -49,7 +49,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    stored_clinks         Int       @default(0)
+    stored_clinks        Int       @default(0)
     cursors              Int       @default(0)
     rows                 Int       @default(8)
 }
