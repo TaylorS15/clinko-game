@@ -293,6 +293,7 @@ export default function Canvas({
                 const newState = [...prevState];
                 const ballValue =
                   localStateRef.current.buildingLevels[
+                    //@ts-expect-error added custom building property to Body
                     ball.building as keyof typeof localStateRef.current.buildingLevels
                   ];
                 newState[index] += ballValue;
@@ -331,6 +332,7 @@ export default function Canvas({
           friction: friction,
           slop: 0,
           label: 'Ball',
+          //@ts-expect-error added custom building property to Body
           building: 'cursor',
           collisionFilter: {
             group: -1,
@@ -364,6 +366,7 @@ export default function Canvas({
             restitution: restitution,
             friction: friction,
             label: 'Ball',
+            //@ts-expect-error added custom building property to Body
             building: 'cursor',
             slop: 0,
             collisionFilter: {
