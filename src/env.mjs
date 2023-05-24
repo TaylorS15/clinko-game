@@ -23,8 +23,6 @@ const server = z.object({
   DISCORD_CLIENT_SECRET: z.string(),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
-  VERCEL_URL: z.string().optional(),
-  VERCEL: z.string().optional(),
 });
 
 /**
@@ -50,8 +48,6 @@ const processEnv = {
   DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-  VERCEL_URL: process.env.VERCEL_URL,
-  VERCEL: process.env.VERCEL,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

@@ -91,6 +91,7 @@ export default function Canvas({
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
 
     /**
      * 449px game width was chosen since it can appear on the smallest screens and have a center pixel
@@ -199,7 +200,7 @@ export default function Canvas({
         bucketWidth / 2 + (i + 1) * bucketWidth - pinRadius,
         gameWidth,
         bucketWidth - 1,
-        20,
+        30,
         {
           isStatic: true,
           render: { fillStyle: '#13bf11' },
@@ -207,7 +208,6 @@ export default function Canvas({
           label: 'Bucket',
         },
       );
-
       buckets.push(bucket);
     }
 
@@ -296,7 +296,16 @@ export default function Canvas({
                     //@ts-expect-error added custom building property to Body
                     ball.building as keyof typeof localStateRef.current.buildingLevels
                   ];
-                newState[index] += ballValue;
+
+                newState[index] +=
+                  ballValue *
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  //@ts-ignore
+                  buildings.row.bucketMultiplier[
+                    localStateRef.current
+                      .rows as keyof typeof buildings.row.bucketMultiplier
+                  ][index as keyof typeof buildings.row.bucketMultiplier];
+
                 return newState;
               });
             }
@@ -375,10 +384,15 @@ export default function Canvas({
           },
         );
 
-        Composite.add(world, ball);
-        localStateRef.current.clinks -=
-          localStateRef.current.buildingLevels.cursor;
-        lastCursorTick = cursorIntervalTickRef.current;
+        if (
+          localStateRef.current.clinks >=
+          localStateRef.current.buildingLevels.cursor
+        ) {
+          Composite.add(world, ball);
+          localStateRef.current.clinks -=
+            localStateRef.current.buildingLevels.cursor;
+          lastCursorTick = cursorIntervalTickRef.current;
+        }
       }
     }, 0);
 
@@ -425,7 +439,7 @@ export default function Canvas({
 
   return (
     <>
-      <div>
+      {/* <div>
         <p className="flex text-lg font-bold text-orange-500">
           Collisions: {bucketCollisions.reduce((a, b) => a + b, 0)}
         </p>
@@ -444,17 +458,8 @@ export default function Canvas({
             </p>
           ))}
         </div>
-      </div>
+      </div> */}
       <canvas className="max-w-[449px]" ref={canvasRef} />
     </>
   );
 }
-
-/**
- * Bucket %'s per number of rows
- * Values are from outside bucket to middle bucket
- * Bucket pairs are merged into one value because they often have slightly different %'s and can be averaged together when scoring
- * rows: 8 - [7.5, 16.3, 25.3, 32.3, 18.7] - 26.67, 12.27, 7.9, 6.20, 5.34
- * rows: 12 - [1.54, 4.79, 7.96, 14.79, 23.95, 30.55, 16.59]
- * rows: 19 - [15.52, 13.45, 20.64, 22.21]
- */

@@ -2,7 +2,6 @@ import { type NextPage } from 'next';
 import Head from 'next/head';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Game from '~/components/Game';
-import { upgradeLevelColors } from '~/components/upgrade';
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -33,20 +32,15 @@ const Home: NextPage = () => {
             {sessionData ? 'Sign out' : 'Sign In'}
           </button>
         )}
+        {sessionData && (
+          <button
+            className="rounded-md bg-seasalt/10 py-3 px-10 font-semibold text-seasalt no-underline transition hover:bg-seasalt/20"
+            onClick={() => void signOut()}
+          >
+            Sign Out
+          </button>
+        )}
         {sessionData && <Game />}
-        <div className="flex flex-wrap">
-          {Object.entries(upgradeLevelColors).map(([level, color]) => {
-            return (
-              <div
-                key={level}
-                className={`h-24 w-24 p-2`}
-                style={{ backgroundColor: color }}
-              >
-                {level}
-              </div>
-            );
-          })}
-        </div>
       </main>
     </>
   );

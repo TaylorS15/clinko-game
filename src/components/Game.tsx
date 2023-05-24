@@ -5,7 +5,7 @@ import { getBuildingCost } from '~/components/upgrade';
 
 export default function Game() {
   const [localState, setLocalState] = useState({
-    clinks: 0,
+    clinks: 15000,
     cursors: 0,
     rows: 8,
     buildingLevels: {
@@ -58,7 +58,7 @@ export default function Game() {
   const [hasUpgradeDataLoaded, setHasUpgradeDataLoaded] = useState(false);
 
   /**
-   * When passing state to the useEffect increment below we need a ref to get the updated state valuesince the hook is only ran on mount.
+   * When passing state to the useEffect increment below we need a ref to get the updated state value since the hook is only ran on mount.
    * We set localStateRef.current to localState
    */
   const localStateRef = useRef(localState);
@@ -159,12 +159,17 @@ export default function Game() {
       <button
         className="w-48 rounded-lg bg-yellow-500 p-2"
         onClick={() => {
-          if (rows < 19) {
+          const cost = getBuildingCost('row', rows - 8);
+          if (rows < 19 && cost <= clinks) {
+            setClinks(clinks - cost);
             setRows(rows + 1);
           }
         }}
       >
-        +1 Row
+        +1 Row <br></br> Cost: {rows === 19 && 'Maxed Out!'}
+        {rows !== 19 &&
+          getBuildingCost('row', rows - 8).toLocaleString('en-US') +
+            ' Clinks'}{' '}
       </button>
 
       <button
