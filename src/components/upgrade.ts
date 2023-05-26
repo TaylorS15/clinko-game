@@ -1,10 +1,44 @@
-export const buildings = {
-  cursor: {
+export interface Row {
+  cost: number;
+  costScale: number;
+  bucketMultiplier: {
+    [key: number]: {
+      [key: number]: number;
+      EV: number;
+    };
+  };
+}
+
+export type Buildings = {
+  cursors: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  factories: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  rows: Row;
+  buildingUpgrade: {
+    cost: number;
+    costScale: number;
+  };
+};
+
+export const buildings: Buildings = {
+  cursors: {
     cost: 10,
     cps: 0.1,
     costScale: 1.15,
   },
-  row: {
+  factories: {
+    cost: 100,
+    cps: 0.25,
+    costScale: 1.15,
+  },
+  rows: {
     cost: 10000,
     costScale: 2.5,
     bucketMultiplier: {

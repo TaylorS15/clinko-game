@@ -54,21 +54,23 @@ model User {
 }
 
 model GameData {
-  id      String @id @default(cuid())
-  userId  String
-  clinks  Int    @default(0)
-  cursors Int    @default(0)
-  rows    Int    @default(8)
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String @id @default(cuid())
+  userId    String
+  clinks    Int    @default(0)
+  cursors   Int    @default(0)
+  factories Int    @default(0)
+  rows      Int    @default(8)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model UpgradeData {
-  id          String @id @default(cuid())
-  userId      String
-  cursorLevel Int    @default(1)
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String @id @default(cuid())
+  userId       String
+  cursorLevel  Int    @default(1)
+  factoryLevel Int    @default(1)
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

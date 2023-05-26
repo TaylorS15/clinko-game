@@ -1,54 +1,73 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '~/utils/api';
 import Canvas from './Canvas';
-import { getBuildingCost } from '~/components/upgrade';
+import UpgradeCard from './BuildingCard';
+import { type GameState, type Building, type RowCount } from '~/types/types';
+import { getBuildingCost } from './upgrade';
+import Image from 'next/image';
 
 export default function Game() {
-  const [localState, setLocalState] = useState({
-    clinks: 15000,
-    cursors: 0,
+  const [gameState, setGameState] = useState<GameState>({
+    clinks: 0,
     rows: 8,
-    buildingLevels: {
-      cursor: 1,
+    buildings: {
+      cursors: {
+        count: 0,
+        level: 1,
+      },
+      factories: {
+        count: 0,
+        level: 1,
+      },
     },
     setClinks: (clinks: number) => {
-      setLocalState((prevState) => ({
+      setGameState((prevState) => ({
         ...prevState,
         clinks: clinks,
       }));
     },
-    setCursors: (cursors: number) => {
-      setLocalState((prevState) => ({
-        ...prevState,
-        cursors: cursors,
-      }));
-    },
-    setRows: (rows: number) => {
-      setLocalState((prevState) => ({
+    setRows: (rows: RowCount) => {
+      setGameState((prevState) => ({
         ...prevState,
         rows: rows,
       }));
     },
-    setCursorLevel: (cursorLevel: number) => {
-      setLocalState((prevState) => ({
+    setBuildingCount: (building: Building['name'], count: number) => {
+      setGameState((prevState) => ({
         ...prevState,
-        buildingLevels: {
-          ...prevState.buildingLevels,
-          cursor: cursorLevel,
+        buildings: {
+          ...prevState.buildings,
+          [building]: {
+            ...prevState.buildings[building],
+            count: count,
+            level: prevState.buildings[building].level,
+          },
+        },
+      }));
+    },
+    setBuildingLevel: (building: Building['name'], level: number) => {
+      setGameState((prevState) => ({
+        ...prevState,
+        buildings: {
+          ...prevState.buildings,
+          [building]: {
+            ...prevState.buildings[building],
+            count: prevState.buildings[building].count,
+            level: level,
+          },
         },
       }));
     },
   });
   const {
     clinks,
-    cursors,
     rows,
-    buildingLevels,
     setClinks,
-    setCursors,
     setRows,
-    setCursorLevel,
-  } = localState;
+    setBuildingCount,
+    setBuildingLevel,
+  } = gameState;
+  const { cursors, factories } = gameState.buildings;
 
   const { data: game_data } = api.game.getGameData.useQuery();
   const { data: upgrade_data } = api.game.getUpgradeData.useQuery();
@@ -59,19 +78,20 @@ export default function Game() {
 
   /**
    * When passing state to the useEffect increment below we need a ref to get the updated state value since the hook is only ran on mount.
-   * We set localStateRef.current to localState
+   * We set gameStateRef.current to gameState
    */
-  const localStateRef = useRef(localState);
+  const gameStateRef = useRef(gameState);
   useEffect(() => {
-    localStateRef.current = localState;
-  });
+    gameStateRef.current = gameState;
+  }, [gameState]);
 
   useEffect(() => {
     if (!hasGameDataLoaded) {
       if (game_data) {
         setClinks(game_data.clinks);
-        setCursors(game_data.cursors);
-        setRows(game_data.rows);
+        setRows(game_data.rows as RowCount);
+        setBuildingCount('cursors', game_data.cursors);
+        setBuildingCount('factories', game_data.factories);
         setHasGameDataLoaded(true);
       }
     }
@@ -80,7 +100,8 @@ export default function Game() {
   useEffect(() => {
     if (!hasUpgradeDataLoaded) {
       if (upgrade_data) {
-        setCursorLevel(upgrade_data.cursorLevel);
+        setBuildingLevel('cursors', upgrade_data.cursorLevel);
+        setBuildingLevel('factories', upgrade_data.factoryLevel);
         setHasUpgradeDataLoaded(true);
       }
     }
@@ -90,12 +111,14 @@ export default function Game() {
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
       updateGameData.mutate({
-        clinks: Math.round(localStateRef.current.clinks),
-        cursors: localStateRef.current.cursors,
-        rows: localStateRef.current.rows,
+        clinks: Math.round(gameStateRef.current.clinks),
+        cursors: gameStateRef.current.buildings.cursors.count,
+        factories: gameStateRef.current.buildings.factories.count,
+        rows: gameStateRef.current.rows,
       });
       updateUpgradeData.mutate({
-        cursorLevel: localStateRef.current.buildingLevels.cursor,
+        cursorLevel: gameStateRef.current.buildings.cursors.level,
+        factoryLevel: gameStateRef.current.buildings.factories.level,
       });
     }, 300000);
 
@@ -106,110 +129,82 @@ export default function Game() {
   }, []);
 
   return (
-    <div className="mt-12 mb-24 flex flex-col gap-2">
-      <Canvas localState={localState} />
+    <div className="mt-12 mb-24 flex flex-col gap-4">
+      <Canvas gameState={gameState} />
 
-      <div>
-        <p className="text-2xl font-bold text-seasalt">
-          Clinks: {Math.round(clinks).toLocaleString('en-US')}
-        </p>
-        <p className="text-2xl font-bold text-seasalt">Cursors: {cursors}</p>
-        <p className="text-2xl font-bold text-seasalt">Rows: {rows}</p>
-        <p className="text-2xl font-bold text-seasalt">
-          Cursor Level: {buildingLevels.cursor}
-        </p>
-      </div>
+      <p className="text-2xl font-bold text-seasalt">
+        Clinks: {Math.round(clinks).toLocaleString('en-US')}
+      </p>
 
-      <div className="flex gap-4">
-        <button
-          className="w-48 rounded-lg bg-purple-500 p-2"
-          onClick={() => {
-            const cost = getBuildingCost('cursor', cursors);
-            if (cost <= clinks) {
-              setClinks(clinks - cost);
-              setCursors(cursors + 1);
-            }
-          }}
-        >
-          +1 Cursor <br></br> Cost:{' '}
-          {getBuildingCost('cursor', cursors).toLocaleString('en-US')} Clinks
-        </button>
-        <button
-          className="w-48 rounded-lg bg-purple-500 p-2"
-          onClick={() => {
-            const cost = getBuildingCost(
-              'buildingUpgrade',
-              buildingLevels.cursor,
-            );
-            if (cost <= clinks) {
-              setClinks(clinks - cost);
-              setCursorLevel(buildingLevels.cursor + 1);
-            }
-          }}
-        >
-          Upgrade Cursors <br></br> Cost:{' '}
-          {getBuildingCost(
-            'buildingUpgrade',
-            buildingLevels.cursor,
-          ).toLocaleString('en-US')}{' '}
-          Clinks
-        </button>
-      </div>
+      <UpgradeCard upgrade={'cursors'} gameState={gameState} />
+      <UpgradeCard upgrade={'factories'} gameState={gameState} />
 
-      <button
-        className="w-48 rounded-lg bg-yellow-500 p-2"
+      <div
+        className="flex h-20 w-96 cursor-pointer justify-between rounded-t-md border-4 border-ultra-violet bg-space-cadet p-2 hover:bg-slate-700"
         onClick={() => {
-          const cost = getBuildingCost('row', rows - 8);
-          if (rows < 19 && cost <= clinks) {
-            setClinks(clinks - cost);
-            setRows(rows + 1);
+          const cost = getBuildingCost('rows', rows - 8);
+
+          console.log(cost, gameState.clinks);
+          if (gameState.clinks >= cost) {
+            gameState.setClinks(gameState.clinks - cost);
+            gameState.setRows((rows + 1) as RowCount);
           }
         }}
       >
-        +1 Row <br></br> Cost: {rows === 19 && 'Maxed Out!'}
-        {rows !== 19 &&
-          getBuildingCost('row', rows - 8).toLocaleString('en-US') +
-            ' Clinks'}{' '}
-      </button>
+        <div className="flex w-2/3 gap-2">
+          <Image
+            src={`/assets/Rows.webp`}
+            width={64}
+            height={64}
+            alt="Rows"
+            className="my-auto h-min w-1/6"
+          />
+          <div className="flex flex-col justify-center">
+            <p className="text-xl font-bold text-seasalt">
+              Cost: {getBuildingCost('rows', rows - 8).toLocaleString('en-US')}
+            </p>
+            <p className="text-xl font-bold text-seasalt">+1 Row</p>
+          </div>
+        </div>
 
-      <button
-        className="w-48 rounded-lg bg-yellow-500 p-2"
-        onClick={() => {
-          if (rows > 8) {
-            setRows(rows - 1);
-          }
-        }}
-      >
-        -1 Row
-      </button>
+        <div className="text-end">
+          <p className="text-xl font-bold text-seasalt">Level: {rows - 7}</p>
+        </div>
+      </div>
 
-      <button
-        className="w-48 rounded-lg bg-green-500 p-2"
-        onClick={() => {
-          updateGameData.mutate({
-            clinks: Math.round(clinks),
-            cursors: cursors,
-            rows: rows,
-          });
-          updateUpgradeData.mutate({
-            cursorLevel: buildingLevels.cursor,
-          });
-        }}
-      >
-        Save
-      </button>
+      <div className="flex flex-col gap-2">
+        <button
+          className="w-48 rounded-lg bg-green-500 p-2"
+          onClick={() => {
+            updateGameData.mutate({
+              clinks: Math.round(clinks),
+              cursors: cursors.count,
+              factories: factories.count,
+              rows: rows,
+            });
+            updateUpgradeData.mutate({
+              cursorLevel: gameState.buildings.cursors.level,
+              factoryLevel: gameState.buildings.factories.level,
+            });
+          }}
+        >
+          Save
+        </button>
 
-      <button
-        className="w-48 rounded-lg bg-red-500 p-2"
-        onClick={() => {
-          setClinks(0);
-          setCursors(0);
-          setRows(8);
-          setCursorLevel(1);
-        }}
-      >
-        Reset
-      </button>
+        <button
+          className="w-48 rounded-lg bg-red-500 p-2"
+          onClick={() => {
+            setClinks(0);
+            setRows(8);
+            setBuildingCount('cursors', 0);
+            setBuildingLevel('cursors', 1);
+            setBuildingCount('factories', 0);
+            setBuildingLevel('factories', 1);
+          }}
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

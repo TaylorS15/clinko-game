@@ -23,6 +23,7 @@ export const gameRouter = createTRPCRouter({
       z.object({
         clinks: z.number().min(0),
         cursors: z.number().min(0),
+        factories: z.number().min(0),
         rows: z.number().min(8).max(19),
       }),
     )
@@ -34,6 +35,7 @@ export const gameRouter = createTRPCRouter({
         data: {
           clinks: input.clinks,
           cursors: input.cursors,
+          factories: input.factories,
           rows: input.rows,
         },
       });
@@ -43,6 +45,7 @@ export const gameRouter = createTRPCRouter({
     .input(
       z.object({
         cursorLevel: z.number().min(1).max(25),
+        factoryLevel: z.number().min(1).max(25),
       }),
     )
     .mutation(({ ctx, input }) => {
@@ -52,6 +55,7 @@ export const gameRouter = createTRPCRouter({
         },
         data: {
           cursorLevel: input.cursorLevel,
+          factoryLevel: input.factoryLevel,
         },
       });
     }),

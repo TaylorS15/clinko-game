@@ -10,56 +10,43 @@ import {
 } from 'matter-js';
 import { useEffect, useRef, useState } from 'react';
 import { buildings, upgradeLevelColors } from '~/components/upgrade';
+import type { GameState } from '~/types/types';
 
-export default function Canvas({
-  localState,
-}: {
-  localState: {
-    clinks: number;
-    cursors: number;
-    rows: number;
-    buildingLevels: {
-      cursor: number;
-    };
-    setClinks: (clinks: number) => void;
-    setCursors: (cursors: number) => void;
-    setRows: (rows: number) => void;
-    setCursorLevel: (cursorLevel: number) => void;
-  };
-}) {
-  const localStateRef = useRef(localState);
+export default function Canvas({ gameState }: { gameState: GameState }) {
+  const gameStateRef = useRef(gameState);
+
+  const [isAfk, setIsAfk] = useState<boolean>(false);
 
   const [bucketCollisions, setBucketCollisions] = useState<number[]>(
-    new Array(localStateRef.current.rows + 1).fill(0),
+    new Array(gameStateRef.current.rows + 1).fill(0),
   );
   const [cursorIntervalTick, setCursorIntervalTick] = useState<number>(0);
+  const [factoryIntervalTick, setFactoryIntervalTick] = useState<number>(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isAfkRef = useRef<boolean>(isAfk);
   const cursorIntervalTickRef = useRef<number>(cursorIntervalTick);
+  const factoryIntervalTickRef = useRef<number>(factoryIntervalTick);
   const bucketCollisionsRef = useRef<number[]>(bucketCollisions);
 
-  /**
-   * Keep localStateRef.current up to date with localState
-   */
   useEffect(() => {
-    localStateRef.current = localState;
-  });
+    isAfkRef.current = isAfk;
+  }, [isAfk]);
 
-  /**
-   * To update clinks without missing collisions we need to use a local state variable instead of effecting the parent state directly
-   * updateClinksInterval is used to update parent localClinks with the bucket collisions made between intervals
-   * After the update we set bucketCollision back to 0
-   */
+  useEffect(() => {
+    gameStateRef.current = gameState;
+  }, [gameState]);
   useEffect(() => {
     bucketCollisionsRef.current = bucketCollisions;
-  });
+  }, [bucketCollisions]);
+
   useEffect(() => {
     const updateClinksInterval = setInterval(() => {
-      localStateRef.current.setClinks(
-        localStateRef.current.clinks +
+      gameStateRef.current.setClinks(
+        gameStateRef.current.clinks +
           bucketCollisionsRef.current.reduce((a, b) => a + b, 0),
       );
-      setBucketCollisions(new Array(localStateRef.current.rows + 1).fill(0));
+      setBucketCollisions(new Array(gameStateRef.current.rows + 1).fill(0));
     }, 10);
 
     return () => {
@@ -68,17 +55,15 @@ export default function Canvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Calculating how often to spawn a ball based on cursorLevel and number of cursors.
-   */
   useEffect(() => {
     cursorIntervalTickRef.current = cursorIntervalTick;
-  });
-  const cursorIntervalRate = localStateRef.current.cursors
+  }, [cursorIntervalTick]);
+
+  const cursorIntervalRate = gameStateRef.current.buildings.cursors.count
     ? 1000 /
-      (localStateRef.current.cursors *
-        (buildings.cursor.cps * localStateRef.current.buildingLevels.cursor))
+      (gameStateRef.current.buildings.cursors.count * buildings.cursors.cps)
     : 1000000000;
+
   useEffect(() => {
     const cursorInterval = setInterval(() => {
       setCursorIntervalTick((prev) => prev + 1);
@@ -90,43 +75,47 @@ export default function Canvas({
   }, [cursorIntervalRate]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
+    factoryIntervalTickRef.current = factoryIntervalTick;
+  }, [factoryIntervalTick]);
 
-    /**
-     * 449px game width was chosen since it can appear on the smallest screens and have a center pixel
-     */
+  const factoryIntervalRate = gameStateRef.current.buildings.factories.count
+    ? 1000 /
+      (gameStateRef.current.buildings.factories.count * buildings.factories.cps)
+    : 1000000000;
+
+  useEffect(() => {
+    const factoryInterval = setInterval(() => {
+      setFactoryIntervalTick((prev) => prev + 1);
+    }, factoryIntervalRate);
+
+    return () => {
+      clearInterval(factoryInterval);
+    };
+  }, [factoryIntervalRate]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
     const gameWidth = 449;
 
-    /**
-     * Constants for pin and ball values.
-     * ySpacingA is the vertical spacing between pins.
-     */
-    const pinRadius = gameWidth / (10 * localStateRef.current.rows + 28);
+    const pinRadius = gameWidth / (10 * gameStateRef.current.rows + 28);
     const ballRadius = pinRadius * 3.5;
     const ySpacingC = (10 * pinRadius) ** 2;
     const ySpacingB = (5 * pinRadius) ** 2;
-    const ySpacingA = Math.sqrt(ySpacingC - ySpacingB);
+    const ySpacingA = Math.sqrt(ySpacingC - ySpacingB); //Vertical spacing between balls
 
-    /**
-     * Constants for restitution and friction.
-     * min and max values are used to spawn balls randomly within a certain area above the top three pins.
-     */
     const restitution = 0.5;
     const friction = 0.0;
     const minXBallSpawn = gameWidth / 2 - pinRadius * 9;
     const maxXBallSpawn = gameWidth / 2 + pinRadius * 9;
     const minYBallSpawn =
-      gameWidth - 25 - ySpacingA * (localStateRef.current.rows - 1);
+      gameWidth - 25 - ySpacingA * (gameStateRef.current.rows - 1);
     const maxYBallSpawn =
       gameWidth -
       25 -
-      ySpacingA * (localStateRef.current.rows - 1) -
+      ySpacingA * (gameStateRef.current.rows - 1) -
       ballRadius * 5;
 
-    /**
-     * Function to get a random integer between min and max
-     */
     const getRandomInt = (min: number, max: number): number => {
       min = Math.ceil(min);
       max = Math.floor(max);
@@ -135,9 +124,6 @@ export default function Canvas({
       return random;
     };
 
-    /**
-     * Creating the engine, world, render, and runner
-     */
     const engine = Engine.create({
       gravity: { x: 0, y: 1.1 },
     });
@@ -154,19 +140,10 @@ export default function Canvas({
     });
     const runner = Runner.create();
 
-    /**
-     * Arrays to hold dynamic number of bodies in the world
-     */
     const pins: Matter.Body[] = [];
-    const buckets: Matter.Body[] = [];
-
-    /**
-     * Pin creation loops
-     * Spacing values are based on a 3 pinRadius spacing between pins
-     */
     let startingCoord: [number, number] = [9 * pinRadius, gameWidth - 25];
     let tempCoord = startingCoord;
-    for (let i = localStateRef.current.rows; i > 0; i--) {
+    for (let i = gameStateRef.current.rows; i > 0; i--) {
       tempCoord = [startingCoord[0], startingCoord[1]];
 
       for (let j = 0; j <= i + 1; j++) {
@@ -188,12 +165,8 @@ export default function Canvas({
       ];
     }
 
-    /*
-     * Bucket Creation
-     * Number of buckets is always rows + 1
-     * For loop creates the buckets and pushes them to the floors array
-     */
-    const numOfBuckets = localStateRef.current.rows + 1;
+    const buckets: Matter.Body[] = [];
+    const numOfBuckets = gameStateRef.current.rows + 1;
     const bucketWidth = 10 * pinRadius;
     for (let i = 0; i < numOfBuckets; i++) {
       const bucket = Bodies.rectangle(
@@ -211,9 +184,6 @@ export default function Canvas({
       buckets.push(bucket);
     }
 
-    /**
-     * Left and right side buckets that extend out past the game window and do not increment bucketCollisions
-     */
     const leftSideBucket = Bodies.rectangle(
       -126 + bucketWidth,
       gameWidth,
@@ -239,15 +209,11 @@ export default function Canvas({
       },
     );
 
-    /**
-     * Pyramid walls
-     * Only change the (rows / x) values to edit placement
-     */
     const pyramidWallLeft = Bodies.rectangle(
-      pinRadius * 6 + pinRadius * 10 * (localStateRef.current.rows / 4),
-      gameWidth - 35 - ySpacingA * (localStateRef.current.rows / 2),
+      pinRadius * 6 + pinRadius * 10 * (gameStateRef.current.rows / 4),
+      gameWidth - 35 - ySpacingA * (gameStateRef.current.rows / 2),
       3,
-      Math.sqrt(ySpacingC) * localStateRef.current.rows - 25,
+      Math.sqrt(ySpacingC) * gameStateRef.current.rows - 25,
       {
         isStatic: true,
         render: { fillStyle: '#1E1E1E' },
@@ -257,10 +223,10 @@ export default function Canvas({
     const pyramidWallRight = Bodies.rectangle(
       gameWidth -
         pinRadius * 6 -
-        pinRadius * 10 * (localStateRef.current.rows / 4),
-      gameWidth - 35 - ySpacingA * (localStateRef.current.rows / 2),
+        pinRadius * 10 * (gameStateRef.current.rows / 4),
+      gameWidth - 35 - ySpacingA * (gameStateRef.current.rows / 2),
       3,
-      Math.sqrt(ySpacingC) * localStateRef.current.rows - 25,
+      Math.sqrt(ySpacingC) * gameStateRef.current.rows - 25,
       {
         isStatic: true,
         render: { fillStyle: '#1E1E1E' },
@@ -270,12 +236,6 @@ export default function Canvas({
     Body.rotate(pyramidWallLeft, 0.525);
     Body.rotate(pyramidWallRight, -0.525);
 
-    /**
-     * Create collision handlers for each bucket
-     * On collision: remove the ball and update correct floorCollisions index
-     * Side buckets are handled separately and dont update floorCollisions
-     * @todo: Add score multipliers for each bucket based on index
-     */
     function handleCollision(event: IEventCollision<Engine>): void {
       event.pairs.forEach((pair) => {
         const labels = [pair.bodyA.label, pair.bodyB.label];
@@ -292,19 +252,18 @@ export default function Canvas({
               setBucketCollisions((prevState) => {
                 const newState = [...prevState];
                 const ballValue =
-                  localStateRef.current.buildingLevels[
+                  gameStateRef.current.buildings[
                     //@ts-expect-error added custom building property to Body
-                    ball.building as keyof typeof localStateRef.current.buildingLevels
-                  ];
+                    ball.building as keyof typeof gameStateRef.current.buildings
+                  ].level;
 
                 newState[index] +=
                   ballValue *
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   //@ts-ignore
-                  buildings.row.bucketMultiplier[
-                    localStateRef.current
-                      .rows as keyof typeof buildings.row.bucketMultiplier
-                  ][index as keyof typeof buildings.row.bucketMultiplier];
+                  buildings.rows.bucketMultiplier[gameStateRef.current.rows][
+                    index
+                  ];
 
                 return newState;
               });
@@ -320,10 +279,6 @@ export default function Canvas({
       });
     }
 
-    /**
-     * Add a new ball on click
-     * Subtract clink cost from localClinks ref.
-     */
     canvas?.addEventListener('click', () => {
       const ball = Bodies.circle(
         getRandomInt(minXBallSpawn, maxXBallSpawn),
@@ -333,8 +288,8 @@ export default function Canvas({
           render: {
             fillStyle:
               upgradeLevelColors[
-                localStateRef.current.buildingLevels
-                  .cursor as keyof typeof upgradeLevelColors
+                gameStateRef.current.buildings.cursors
+                  .level as keyof typeof upgradeLevelColors
               ],
           },
           restitution: restitution,
@@ -342,7 +297,7 @@ export default function Canvas({
           slop: 0,
           label: 'Ball',
           //@ts-expect-error added custom building property to Body
-          building: 'cursor',
+          building: 'cursors',
           collisionFilter: {
             group: -1,
           },
@@ -352,11 +307,6 @@ export default function Canvas({
       Composite.add(world, ball);
     });
 
-    /**
-     * Checks if cursorIntervalTick has changed since last local tick.
-     * If so, add a new ball to the world and increment lastCursorTick to stop adding balls until next cursorIntervalTick.
-     * Subtract clink cost from localClinks ref.
-     */
     let lastCursorTick = 0;
     const cursorTicker = setInterval(() => {
       if (lastCursorTick !== cursorIntervalTickRef.current) {
@@ -368,15 +318,15 @@ export default function Canvas({
             render: {
               fillStyle:
                 upgradeLevelColors[
-                  localStateRef.current.buildingLevels
-                    .cursor as keyof typeof upgradeLevelColors
+                  gameStateRef.current.buildings.cursors
+                    .level as keyof typeof upgradeLevelColors
                 ],
             },
             restitution: restitution,
             friction: friction,
             label: 'Ball',
             //@ts-expect-error added custom building property to Body
-            building: 'cursor',
+            building: 'cursors',
             slop: 0,
             collisionFilter: {
               group: -1,
@@ -385,25 +335,99 @@ export default function Canvas({
         );
 
         if (
-          localStateRef.current.clinks >=
-          localStateRef.current.buildingLevels.cursor
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.cursors.level
         ) {
-          Composite.add(world, ball);
-          localStateRef.current.clinks -=
-            localStateRef.current.buildingLevels.cursor;
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.cursors.level;
+
+          if (isAfkRef.current) {
+            setBucketCollisions((prevState) => {
+              const newState = [...prevState];
+
+              newState[0] +=
+                gameStateRef.current.buildings.cursors.level *
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                //@ts-ignore
+                buildings.rows.bucketMultiplier[
+                  gameStateRef.current
+                    .rows as keyof typeof buildings.rows.bucketMultiplier
+                ]['EV'];
+
+              return newState;
+            });
+          } else {
+            Composite.add(world, ball);
+          }
+
           lastCursorTick = cursorIntervalTickRef.current;
         }
       }
     }, 0);
 
-    /**
-     * Fill bucketCollisions array with 0s on mount
-     */
-    setBucketCollisions(new Array(localStateRef.current.rows + 1).fill(0));
+    let lastFactoryTick = 0;
+    const factoryTicker = setInterval(() => {
+      if (lastFactoryTick !== factoryIntervalTickRef.current) {
+        const ball = Bodies.circle(
+          getRandomInt(minXBallSpawn, maxXBallSpawn),
+          getRandomInt(minYBallSpawn, maxYBallSpawn),
+          ballRadius,
+          {
+            render: {
+              fillStyle:
+                upgradeLevelColors[
+                  gameStateRef.current.buildings.factories
+                    .level as keyof typeof upgradeLevelColors
+                ],
+            },
+            restitution: restitution,
+            friction: friction,
+            label: 'Ball',
+            //@ts-expect-error added custom building property to Body
+            building: 'factories',
+            slop: 0,
+            collisionFilter: {
+              group: -1,
+            },
+          },
+        );
 
-    /**
-     * Add all bodies to the world and run the engine
-     */
+        if (
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.factories.level
+        ) {
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.factories.level;
+
+          if (isAfkRef.current) {
+            setBucketCollisions((prevState) => {
+              const newState = [...prevState];
+
+              newState[0] +=
+                gameStateRef.current.buildings.factories.level *
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                //@ts-ignore
+                buildings.rows.bucketMultiplier[gameStateRef.current.rows][
+                  'EV'
+                ];
+
+              return newState;
+            });
+          } else {
+            Composite.add(world, ball);
+          }
+
+          lastFactoryTick = factoryIntervalTickRef.current;
+        }
+      }
+    }, 0);
+
+    // window.addEventListener('visibilitychange', () => {
+
+    // })
+
+    setBucketCollisions(new Array(gameStateRef.current.rows + 1).fill(0));
+
     Render.run(render);
     Composite.add(world, [
       ...buckets,
@@ -416,9 +440,6 @@ export default function Canvas({
     Events.on(engine, 'collisionActive', handleCollision);
     Runner.run(runner, engine);
 
-    /**
-     * Cleanup when component unmounts to stop duplication of game
-     */
     return () => {
       Render.stop(render);
       //@ts-expect-error index.d.ts file is missing ability to pass array to Composite.remove
@@ -433,32 +454,13 @@ export default function Canvas({
       Events.off(engine, 'collisionActive', handleCollision);
       Runner.stop(runner);
       clearInterval(cursorTicker);
+      clearInterval(factoryTicker);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localState.rows]);
+  }, [gameState.rows]);
 
   return (
     <>
-      {/* <div>
-        <p className="flex text-lg font-bold text-orange-500">
-          Collisions: {bucketCollisions.reduce((a, b) => a + b, 0)}
-        </p>
-        <p className="text-lg font-bold text-red-500">
-          Rows: {localStateRef.current.rows}
-        </p>
-        <div className="flex">
-          {bucketCollisions.map((bucketCollision, index) => (
-            <p key={index} className="text-xs font-bold text-green-500">
-              {(
-                (bucketCollision /
-                  bucketCollisions.reduce((a, b) => a + b, 0)) *
-                100
-              ).toFixed(2)}
-              %<span className="font-normal text-seasalt">,</span>
-            </p>
-          ))}
-        </div>
-      </div> */}
       <canvas className="max-w-[449px]" ref={canvasRef} />
     </>
   );
