@@ -1,16 +1,10 @@
-export interface Row {
-  cost: number;
-  costScale: number;
-  bucketMultiplier: {
-    [key: number]: {
-      [key: number]: number;
-      EV: number;
-    };
-  };
-}
-
 export type Buildings = {
   cursors: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  mines: {
     cost: number;
     cps: number;
     costScale: number;
@@ -20,7 +14,36 @@ export type Buildings = {
     cps: number;
     costScale: number;
   };
-  rows: Row;
+  farms: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  nuclearplants: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  cryptominers: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  ballpits: {
+    cost: number;
+    cps: number;
+    costScale: number;
+  };
+  rows: {
+    cost: number;
+    costScale: number;
+    bucketMultiplier: {
+      [key: number]: {
+        [key: number]: number;
+        EV: number;
+      };
+    };
+  };
   buildingUpgrade: {
     cost: number;
     costScale: number;
@@ -33,14 +56,39 @@ export const buildings: Buildings = {
     cps: 0.1,
     costScale: 1.15,
   },
-  factories: {
+  mines: {
     cost: 100,
     cps: 0.25,
     costScale: 1.15,
   },
+  factories: {
+    cost: 250,
+    cps: 0.5,
+    costScale: 1.15,
+  },
+  farms: {
+    cost: 1000,
+    cps: 1,
+    costScale: 1.15,
+  },
+  nuclearplants: {
+    cost: 5000,
+    cps: 2,
+    costScale: 1.15,
+  },
+  cryptominers: {
+    cost: 25000,
+    cps: 4,
+    costScale: 1.15,
+  },
+  ballpits: {
+    cost: 1000000,
+    cps: 8,
+    costScale: 1.15,
+  },
   rows: {
     cost: 10000,
-    costScale: 2.5,
+    costScale: 6.5,
     bucketMultiplier: {
       8: {
         0: 7,

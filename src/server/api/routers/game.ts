@@ -23,7 +23,12 @@ export const gameRouter = createTRPCRouter({
       z.object({
         clinks: z.number().min(0),
         cursors: z.number().min(0),
+        mines: z.number().min(0),
         factories: z.number().min(0),
+        nuclearplants: z.number().min(0),
+        farms: z.number().min(0),
+        cryptominers: z.number().min(0),
+        ballpits: z.number().min(0),
         rows: z.number().min(8).max(19),
       }),
     )
@@ -36,6 +41,11 @@ export const gameRouter = createTRPCRouter({
           clinks: input.clinks,
           cursors: input.cursors,
           factories: input.factories,
+          mines: input.mines,
+          nuclearplants: input.nuclearplants,
+          farms: input.farms,
+          cryptominers: input.cryptominers,
+          ballpits: input.ballpits,
           rows: input.rows,
         },
       });
@@ -46,6 +56,11 @@ export const gameRouter = createTRPCRouter({
       z.object({
         cursorLevel: z.number().min(1).max(25),
         factoryLevel: z.number().min(1).max(25),
+        farmLevel: z.number().min(1).max(25),
+        mineLevel: z.number().min(1).max(25),
+        nuclearplantLevel: z.number().min(1).max(25),
+        cryptominerLevel: z.number().min(1).max(25),
+        ballpitLevel: z.number().min(1).max(25),
       }),
     )
     .mutation(({ ctx, input }) => {
@@ -56,6 +71,11 @@ export const gameRouter = createTRPCRouter({
         data: {
           cursorLevel: input.cursorLevel,
           factoryLevel: input.factoryLevel,
+          farmLevel: input.farmLevel,
+          mineLevel: input.mineLevel,
+          nuclearplantLevel: input.nuclearplantLevel,
+          cryptominerLevel: input.cryptominerLevel,
+          ballpitLevel: input.ballpitLevel,
         },
       });
     }),

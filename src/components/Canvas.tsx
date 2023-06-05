@@ -8,30 +8,70 @@ import {
   type IEventCollision,
   Body,
 } from 'matter-js';
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { buildings, upgradeLevelColors } from '~/components/upgrade';
+import useBuildingInterval from '~/hooks/useBuildingInterval';
 import type { GameState } from '~/types/types';
 
 export default function Canvas({ gameState }: { gameState: GameState }) {
   const gameStateRef = useRef(gameState);
 
-  const [isAfk, setIsAfk] = useState<boolean>(false);
-
   const [bucketCollisions, setBucketCollisions] = useState<number[]>(
     new Array(gameStateRef.current.rows + 1).fill(0),
   );
-  const [cursorIntervalTick, setCursorIntervalTick] = useState<number>(0);
-  const [factoryIntervalTick, setFactoryIntervalTick] = useState<number>(0);
+
+  const [cursorIntervalTick] = useState<number>(0);
+  const [factoryIntervalTick] = useState<number>(0);
+  const [mineIntervalTick] = useState<number>(0);
+  const [farmIntervalTick] = useState<number>(0);
+  const [nuclearPlantIntervalTick] = useState<number>(0);
+  const [cryptoMinerIntervalTick] = useState<number>(0);
+  const [ballPitIntervalTick] = useState<number>(0);
+  const cursorInterval = useBuildingInterval(
+    cursorIntervalTick,
+    gameStateRef.current.buildings.cursors.count,
+    buildings.cursors.cps,
+  );
+  const factoryInterval = useBuildingInterval(
+    factoryIntervalTick,
+    gameStateRef.current.buildings.factories.count,
+    buildings.factories.cps,
+  );
+  const farmInterval = useBuildingInterval(
+    farmIntervalTick,
+    gameStateRef.current.buildings.farms.count,
+    buildings.farms.cps,
+  );
+  const mineInterval = useBuildingInterval(
+    mineIntervalTick,
+    gameStateRef.current.buildings.mines.count,
+    buildings.mines.cps,
+  );
+  const nuclearPlantInterval = useBuildingInterval(
+    nuclearPlantIntervalTick,
+    gameStateRef.current.buildings.nuclearplants.count,
+    buildings.nuclearplants.cps,
+  );
+  const cryptoMinerInterval = useBuildingInterval(
+    cryptoMinerIntervalTick,
+    gameStateRef.current.buildings.cryptominers.count,
+    buildings.cryptominers.cps,
+  );
+  const ballPitInterval = useBuildingInterval(
+    ballPitIntervalTick,
+    gameStateRef.current.buildings.ballpits.count,
+    buildings.ballpits.cps,
+  );
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isAfkRef = useRef<boolean>(isAfk);
   const cursorIntervalTickRef = useRef<number>(cursorIntervalTick);
   const factoryIntervalTickRef = useRef<number>(factoryIntervalTick);
+  const farmIntervalTickRef = useRef<number>(farmIntervalTick);
+  const mineIntervalTickRef = useRef<number>(mineIntervalTick);
+  const nuclearPlantIntervalTickRef = useRef<number>(nuclearPlantIntervalTick);
+  const cryptoMinerIntervalTickRef = useRef<number>(cryptoMinerIntervalTick);
+  const ballPitIntervalTickRef = useRef<number>(ballPitIntervalTick);
   const bucketCollisionsRef = useRef<number[]>(bucketCollisions);
-
-  useEffect(() => {
-    isAfkRef.current = isAfk;
-  }, [isAfk]);
 
   useEffect(() => {
     gameStateRef.current = gameState;
@@ -41,57 +81,41 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
   }, [bucketCollisions]);
 
   useEffect(() => {
+    cursorIntervalTickRef.current = cursorInterval;
+  }, [cursorInterval]);
+  useEffect(() => {
+    factoryIntervalTickRef.current = factoryInterval;
+  }, [factoryInterval]);
+  useEffect(() => {
+    farmIntervalTickRef.current = farmInterval;
+  }, [farmInterval]);
+  useEffect(() => {
+    mineIntervalTickRef.current = mineInterval;
+  }, [mineInterval]);
+  useEffect(() => {
+    nuclearPlantIntervalTickRef.current = nuclearPlantInterval;
+  }, [nuclearPlantInterval]);
+  useEffect(() => {
+    cryptoMinerIntervalTickRef.current = cryptoMinerInterval;
+  }, [cryptoMinerInterval]);
+  useEffect(() => {
+    ballPitIntervalTickRef.current = ballPitInterval;
+  }, [ballPitInterval]);
+
+  useEffect(() => {
     const updateClinksInterval = setInterval(() => {
       gameStateRef.current.setClinks(
         gameStateRef.current.clinks +
           bucketCollisionsRef.current.reduce((a, b) => a + b, 0),
       );
       setBucketCollisions(new Array(gameStateRef.current.rows + 1).fill(0));
-    }, 10);
+    }, 100);
 
     return () => {
       clearInterval(updateClinksInterval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    cursorIntervalTickRef.current = cursorIntervalTick;
-  }, [cursorIntervalTick]);
-
-  const cursorIntervalRate = gameStateRef.current.buildings.cursors.count
-    ? 1000 /
-      (gameStateRef.current.buildings.cursors.count * buildings.cursors.cps)
-    : 1000000000;
-
-  useEffect(() => {
-    const cursorInterval = setInterval(() => {
-      setCursorIntervalTick((prev) => prev + 1);
-    }, cursorIntervalRate);
-
-    return () => {
-      clearInterval(cursorInterval);
-    };
-  }, [cursorIntervalRate]);
-
-  useEffect(() => {
-    factoryIntervalTickRef.current = factoryIntervalTick;
-  }, [factoryIntervalTick]);
-
-  const factoryIntervalRate = gameStateRef.current.buildings.factories.count
-    ? 1000 /
-      (gameStateRef.current.buildings.factories.count * buildings.factories.cps)
-    : 1000000000;
-
-  useEffect(() => {
-    const factoryInterval = setInterval(() => {
-      setFactoryIntervalTick((prev) => prev + 1);
-    }, factoryIntervalRate);
-
-    return () => {
-      clearInterval(factoryInterval);
-    };
-  }, [factoryIntervalRate]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -176,7 +200,7 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
         30,
         {
           isStatic: true,
-          render: { fillStyle: '#13bf11' },
+          render: { fillStyle: '#1E1E1E' },
           slop: 0,
           label: 'Bucket',
         },
@@ -340,30 +364,11 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
         ) {
           gameStateRef.current.clinks -=
             gameStateRef.current.buildings.cursors.level;
-
-          if (isAfkRef.current) {
-            setBucketCollisions((prevState) => {
-              const newState = [...prevState];
-
-              newState[0] +=
-                gameStateRef.current.buildings.cursors.level *
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                buildings.rows.bucketMultiplier[
-                  gameStateRef.current
-                    .rows as keyof typeof buildings.rows.bucketMultiplier
-                ]['EV'];
-
-              return newState;
-            });
-          } else {
-            Composite.add(world, ball);
-          }
-
+          Composite.add(world, ball);
           lastCursorTick = cursorIntervalTickRef.current;
         }
       }
-    }, 0);
+    }, 1);
 
     let lastFactoryTick = 0;
     const factoryTicker = setInterval(() => {
@@ -398,33 +403,206 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
         ) {
           gameStateRef.current.clinks -=
             gameStateRef.current.buildings.factories.level;
-
-          if (isAfkRef.current) {
-            setBucketCollisions((prevState) => {
-              const newState = [...prevState];
-
-              newState[0] +=
-                gameStateRef.current.buildings.factories.level *
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                buildings.rows.bucketMultiplier[gameStateRef.current.rows][
-                  'EV'
-                ];
-
-              return newState;
-            });
-          } else {
-            Composite.add(world, ball);
-          }
-
+          Composite.add(world, ball);
           lastFactoryTick = factoryIntervalTickRef.current;
         }
       }
-    }, 0);
+    }, 1);
 
-    // window.addEventListener('visibilitychange', () => {
+    let lastMineTick = 0;
+    const mineTicker = setInterval(() => {
+      if (lastMineTick !== mineIntervalTickRef.current) {
+        const ball = Bodies.circle(
+          getRandomInt(minXBallSpawn, maxXBallSpawn),
+          getRandomInt(minYBallSpawn, maxYBallSpawn),
+          ballRadius,
+          {
+            render: {
+              fillStyle:
+                upgradeLevelColors[
+                  gameStateRef.current.buildings.mines
+                    .level as keyof typeof upgradeLevelColors
+                ],
+            },
+            restitution: restitution,
+            friction: friction,
+            label: 'Ball',
+            //@ts-expect-error added custom building property to Body
+            building: 'mines',
+            slop: 0,
+            collisionFilter: {
+              group: -1,
+            },
+          },
+        );
 
-    // })
+        if (
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.mines.level
+        ) {
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.mines.level;
+          Composite.add(world, ball);
+          lastMineTick = mineIntervalTickRef.current;
+        }
+      }
+    }, 1);
+
+    let lastFarmTick = 0;
+    const farmTicker = setInterval(() => {
+      if (lastFarmTick !== farmIntervalTickRef.current) {
+        const ball = Bodies.circle(
+          getRandomInt(minXBallSpawn, maxXBallSpawn),
+          getRandomInt(minYBallSpawn, maxYBallSpawn),
+          ballRadius,
+          {
+            render: {
+              fillStyle:
+                upgradeLevelColors[
+                  gameStateRef.current.buildings.farms
+                    .level as keyof typeof upgradeLevelColors
+                ],
+            },
+            restitution: restitution,
+            friction: friction,
+            label: 'Ball',
+            //@ts-expect-error added custom building property to Body
+            building: 'farms',
+            slop: 0,
+            collisionFilter: {
+              group: -1,
+            },
+          },
+        );
+
+        if (
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.farms.level
+        ) {
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.farms.level;
+          Composite.add(world, ball);
+          lastFarmTick = farmIntervalTickRef.current;
+        }
+      }
+    }, 1);
+
+    let lastNuclearPlantTick = 0;
+    const nuclearPlantTicker = setInterval(() => {
+      if (lastNuclearPlantTick !== nuclearPlantIntervalTickRef.current) {
+        const ball = Bodies.circle(
+          getRandomInt(minXBallSpawn, maxXBallSpawn),
+          getRandomInt(minYBallSpawn, maxYBallSpawn),
+          ballRadius,
+          {
+            render: {
+              fillStyle:
+                upgradeLevelColors[
+                  gameStateRef.current.buildings.nuclearplants
+                    .level as keyof typeof upgradeLevelColors
+                ],
+            },
+            restitution: restitution,
+            friction: friction,
+            label: 'Ball',
+            //@ts-expect-error added custom building property to Body
+            building: 'nuclearplants',
+            slop: 0,
+            collisionFilter: {
+              group: -1,
+            },
+          },
+        );
+
+        if (
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.nuclearplants.level
+        ) {
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.nuclearplants.level;
+          Composite.add(world, ball);
+          lastNuclearPlantTick = nuclearPlantIntervalTickRef.current;
+        }
+      }
+    }, 1);
+
+    let lastCryptoMinerTick = 0;
+    const cryptoMinerTicker = setInterval(() => {
+      if (lastCryptoMinerTick !== cryptoMinerIntervalTickRef.current) {
+        const ball = Bodies.circle(
+          getRandomInt(minXBallSpawn, maxXBallSpawn),
+          getRandomInt(minYBallSpawn, maxYBallSpawn),
+          ballRadius,
+          {
+            render: {
+              fillStyle:
+                upgradeLevelColors[
+                  gameStateRef.current.buildings.cryptominers
+                    .level as keyof typeof upgradeLevelColors
+                ],
+            },
+            restitution: restitution,
+            friction: friction,
+            label: 'Ball',
+            //@ts-expect-error added custom building property to Body
+            building: 'cryptominers',
+            slop: 0,
+            collisionFilter: {
+              group: -1,
+            },
+          },
+        );
+
+        if (
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.cryptominers.level
+        ) {
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.cryptominers.level;
+          Composite.add(world, ball);
+          lastCryptoMinerTick = cryptoMinerIntervalTickRef.current;
+        }
+      }
+    }, 1);
+
+    let lastBallPitTick = 0;
+    const ballPitTicker = setInterval(() => {
+      if (lastBallPitTick !== ballPitIntervalTickRef.current) {
+        const ball = Bodies.circle(
+          getRandomInt(minXBallSpawn, maxXBallSpawn),
+          getRandomInt(minYBallSpawn, maxYBallSpawn),
+          ballRadius,
+          {
+            render: {
+              fillStyle:
+                upgradeLevelColors[
+                  gameStateRef.current.buildings.ballpits
+                    .level as keyof typeof upgradeLevelColors
+                ],
+            },
+            restitution: restitution,
+            friction: friction,
+            label: 'Ball',
+            //@ts-expect-error added custom building property to Body
+            building: 'ballpits',
+            slop: 0,
+            collisionFilter: {
+              group: -1,
+            },
+          },
+        );
+
+        if (
+          gameStateRef.current.clinks >=
+          gameStateRef.current.buildings.ballpits.level
+        ) {
+          gameStateRef.current.clinks -=
+            gameStateRef.current.buildings.ballpits.level;
+          Composite.add(world, ball);
+          lastBallPitTick = ballPitIntervalTickRef.current;
+        }
+      }
+    }, 1);
 
     setBucketCollisions(new Array(gameStateRef.current.rows + 1).fill(0));
 
@@ -455,13 +633,49 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
       Runner.stop(runner);
       clearInterval(cursorTicker);
       clearInterval(factoryTicker);
+      clearInterval(farmTicker);
+      clearInterval(nuclearPlantTicker);
+      clearInterval(cryptoMinerTicker);
+      clearInterval(ballPitTicker);
+      clearInterval(mineTicker);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState.rows]);
 
   return (
-    <>
-      <canvas className="max-w-[449px]" ref={canvasRef} />
-    </>
+    <div className="">
+      <canvas className="max-w-[449px] cursor-pointer" ref={canvasRef} />
+      <div className="relative h-12 w-full max-w-[449px] bg-[#1E1E1E]">
+        {bucketCollisions.map((bucket, index) => {
+          return (
+            <div
+              key={index}
+              className="absolute bg-orange-500"
+              style={{
+                top: '-15px',
+                width: `${449 / (gameState.rows + 3) - 3}px`,
+                height: `15px`,
+                left: `${
+                  449 / (gameState.rows + 3) +
+                  (index * 449) / (gameState.rows + 3) +
+                  (index > bucketCollisions.length / 2 ? 1.5 : 1.5)
+                }px`,
+              }}
+            >
+              <p
+                className={`absolute inset-0 text-center text-xs text-seasalt`}
+              >
+                {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  //@ts-ignore
+                  buildings.rows.bucketMultiplier[gameState.rows][index]
+                }
+                x
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

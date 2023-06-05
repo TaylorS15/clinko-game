@@ -12,6 +12,11 @@ export default function BuildingCard({
   const nonPluralBuildings = {
     cursors: 'Cursor',
     factories: 'Factory',
+    farms: 'Farm',
+    mines: 'Mine',
+    nuclearplants: 'Nuclear Plant',
+    cryptominers: 'Cryptominer',
+    ballpits: 'Ball Pit',
   };
 
   return (

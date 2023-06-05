@@ -54,23 +54,33 @@ model User {
 }
 
 model GameData {
-  id        String @id @default(cuid())
-  userId    String
-  clinks    Int    @default(0)
-  cursors   Int    @default(0)
-  factories Int    @default(0)
-  rows      Int    @default(8)
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String @id @default(cuid())
+  userId        String
+  clinks        Int    @default(0)
+  cursors       Int    @default(0)
+  mines         Int    @default(0)
+  factories     Int    @default(0)
+  farms         Int    @default(0)
+  nuclearplants Int    @default(0)
+  cryptominers  Int    @default(0)
+  ballpits      Int    @default(0)
+  rows          Int    @default(8)
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model UpgradeData {
-  id           String @id @default(cuid())
-  userId       String
-  cursorLevel  Int    @default(1)
-  factoryLevel Int    @default(1)
-  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String @id @default(cuid())
+  userId            String
+  cursorLevel       Int    @default(1)
+  mineLevel         Int    @default(1)
+  factoryLevel      Int    @default(1)
+  farmLevel         Int    @default(1)
+  nuclearplantLevel Int    @default(1)
+  cryptominerLevel  Int    @default(1)
+  ballpitLevel      Int    @default(1)
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

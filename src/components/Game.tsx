@@ -19,6 +19,26 @@ export default function Game() {
         count: 0,
         level: 1,
       },
+      farms: {
+        count: 0,
+        level: 1,
+      },
+      mines: {
+        count: 0,
+        level: 1,
+      },
+      nuclearplants: {
+        count: 0,
+        level: 1,
+      },
+      cryptominers: {
+        count: 0,
+        level: 1,
+      },
+      ballpits: {
+        count: 0,
+        level: 1,
+      },
     },
     setClinks: (clinks: number) => {
       setGameState((prevState) => ({
@@ -67,7 +87,15 @@ export default function Game() {
     setBuildingCount,
     setBuildingLevel,
   } = gameState;
-  const { cursors, factories } = gameState.buildings;
+  const {
+    cursors,
+    factories,
+    farms,
+    mines,
+    cryptominers,
+    nuclearplants,
+    ballpits,
+  } = gameState.buildings;
 
   const { data: game_data } = api.game.getGameData.useQuery();
   const { data: upgrade_data } = api.game.getUpgradeData.useQuery();
@@ -76,10 +104,6 @@ export default function Game() {
   const [hasGameDataLoaded, setHasGameDataLoaded] = useState(false);
   const [hasUpgradeDataLoaded, setHasUpgradeDataLoaded] = useState(false);
 
-  /**
-   * When passing state to the useEffect increment below we need a ref to get the updated state value since the hook is only ran on mount.
-   * We set gameStateRef.current to gameState
-   */
   const gameStateRef = useRef(gameState);
   useEffect(() => {
     gameStateRef.current = gameState;
@@ -114,11 +138,21 @@ export default function Game() {
         clinks: Math.round(gameStateRef.current.clinks),
         cursors: gameStateRef.current.buildings.cursors.count,
         factories: gameStateRef.current.buildings.factories.count,
+        farms: gameStateRef.current.buildings.farms.count,
+        mines: gameStateRef.current.buildings.mines.count,
+        nuclearplants: gameStateRef.current.buildings.nuclearplants.count,
+        cryptominers: gameStateRef.current.buildings.cryptominers.count,
+        ballpits: gameStateRef.current.buildings.ballpits.count,
         rows: gameStateRef.current.rows,
       });
       updateUpgradeData.mutate({
         cursorLevel: gameStateRef.current.buildings.cursors.level,
         factoryLevel: gameStateRef.current.buildings.factories.level,
+        farmLevel: gameStateRef.current.buildings.farms.level,
+        mineLevel: gameStateRef.current.buildings.mines.level,
+        nuclearplantLevel: gameStateRef.current.buildings.nuclearplants.level,
+        cryptominerLevel: gameStateRef.current.buildings.cryptominers.level,
+        ballpitLevel: gameStateRef.current.buildings.ballpits.level,
       });
     }, 300000);
 
@@ -132,19 +166,23 @@ export default function Game() {
     <div className="mt-12 mb-24 flex flex-col gap-4">
       <Canvas gameState={gameState} />
 
-      <p className="text-2xl font-bold text-seasalt">
+      <p className="mt-8 text-2xl font-bold text-seasalt">
         Clinks: {Math.round(clinks).toLocaleString('en-US')}
       </p>
 
       <UpgradeCard upgrade={'cursors'} gameState={gameState} />
+      <UpgradeCard upgrade={'mines'} gameState={gameState} />
       <UpgradeCard upgrade={'factories'} gameState={gameState} />
+      <UpgradeCard upgrade={'farms'} gameState={gameState} />
+      <UpgradeCard upgrade={'nuclearplants'} gameState={gameState} />
+      <UpgradeCard upgrade={'cryptominers'} gameState={gameState} />
+      <UpgradeCard upgrade={'ballpits'} gameState={gameState} />
 
       <div
         className="flex h-20 w-96 cursor-pointer justify-between rounded-t-md border-4 border-ultra-violet bg-space-cadet p-2 hover:bg-slate-700"
         onClick={() => {
           const cost = getBuildingCost('rows', rows - 8);
 
-          console.log(cost, gameState.clinks);
           if (gameState.clinks >= cost) {
             gameState.setClinks(gameState.clinks - cost);
             gameState.setRows((rows + 1) as RowCount);
@@ -180,11 +218,21 @@ export default function Game() {
               clinks: Math.round(clinks),
               cursors: cursors.count,
               factories: factories.count,
+              farms: farms.count,
+              mines: mines.count,
+              nuclearplants: nuclearplants.count,
+              cryptominers: cryptominers.count,
+              ballpits: ballpits.count,
               rows: rows,
             });
             updateUpgradeData.mutate({
               cursorLevel: gameState.buildings.cursors.level,
               factoryLevel: gameState.buildings.factories.level,
+              farmLevel: gameState.buildings.farms.level,
+              mineLevel: gameState.buildings.mines.level,
+              nuclearplantLevel: gameState.buildings.nuclearplants.level,
+              cryptominerLevel: gameState.buildings.cryptominers.level,
+              ballpitLevel: gameState.buildings.ballpits.level,
             });
           }}
         >

@@ -16,5 +16,12 @@ export interface GameState {
 }
 
 export type Building = {
-  name: 'cursors' | 'factories';
+  name:
+    | 'cursors'
+    | 'factories'
+    | 'mines'
+    | 'cryptominers'
+    | 'ballpits'
+    | 'farms'
+    | 'nuclearplants';
 };
