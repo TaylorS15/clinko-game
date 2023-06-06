@@ -8,7 +8,7 @@ import {
   type IEventCollision,
   Body,
 } from 'matter-js';
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { buildings, upgradeLevelColors } from '~/components/upgrade';
 import useBuildingInterval from '~/hooks/useBuildingInterval';
 import type { GameState } from '~/types/types';
@@ -645,7 +645,7 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
   return (
     <div className="">
       <canvas className="max-w-[449px] cursor-pointer" ref={canvasRef} />
-      <div className="relative h-12 w-full max-w-[449px] bg-[#1E1E1E]">
+      <div className="relative h-1 w-full max-w-[449px] bg-[#1E1E1E]">
         {bucketCollisions.map((bucket, index) => {
           return (
             <div
