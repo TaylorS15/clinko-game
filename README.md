@@ -13,3 +13,5 @@ A simple AFK game for the web built with the create-t3-app. Start with zero buil
   - NextAuth.js
 - Matter.js
 - Zod
+
+### Version 0.9.0
