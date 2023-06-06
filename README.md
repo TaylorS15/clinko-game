@@ -4,7 +4,7 @@ A simple AFK game for the web built with the create-t3-app. Start with zero buil
 
 ## Tools and Libraries
 
-- [create-t3-app](
+- create-t3-app
   - Next.js
   - React
   - TypeScript
@@ -12,6 +12,5 @@ A simple AFK game for the web built with the create-t3-app. Start with zero buil
   - Prisma
   - tRPC
   - NextAuth.js
-    )
-- [Matter.js]
-- [Zod]
+- Matter.js
+- Zod
