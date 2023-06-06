@@ -6,7 +6,6 @@ A simple AFK game for the web built with the create-t3-app. Start with zero buil
 
 - create-t3-app
   - Next.js
-  - React
   - TypeScript
   - Tailwind CSS
   - Prisma
