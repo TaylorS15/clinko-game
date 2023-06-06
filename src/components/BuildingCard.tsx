@@ -72,7 +72,26 @@ export default function BuildingCard({
         </div>
       </div>
 
-      <div className="flex h-12 w-96 cursor-pointer justify-between rounded-b-md border-r-4 border-b-4 border-l-4 border-ultra-violet bg-space-cadet p-2 hover:bg-slate-700">
+      <div
+        className="flex h-12 w-96 cursor-pointer justify-between rounded-b-md border-r-4 border-b-4 border-l-4 border-ultra-violet bg-space-cadet p-2 hover:bg-slate-700"
+        onClick={() => {
+          const cost = getBuildingCost(
+            'buildingUpgrade',
+            gameState.buildings[upgrade as Building['name']].level,
+          );
+
+          if (
+            gameState.clinks >= cost &&
+            gameState.buildings[upgrade as Building['name']].level < 25
+          ) {
+            gameState.setClinks(gameState.clinks - cost);
+            gameState.setBuildingLevel(
+              upgrade as Building['name'],
+              gameState.buildings[upgrade as Building['name']].level + 1,
+            );
+          }
+        }}
+      >
         <p className="text-lg font-bold text-seasalt">
           Upgrade:{' '}
           {getBuildingCost(

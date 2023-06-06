@@ -115,7 +115,12 @@ export default function Game() {
         setClinks(game_data.clinks);
         setRows(game_data.rows as RowCount);
         setBuildingCount('cursors', game_data.cursors);
+        setBuildingCount('farms', game_data.farms);
+        setBuildingCount('mines', game_data.mines);
         setBuildingCount('factories', game_data.factories);
+        setBuildingCount('nuclearplants', game_data.nuclearplants);
+        setBuildingCount('cryptominers', game_data.cryptominers);
+        setBuildingCount('ballpits', game_data.ballpits);
         setHasGameDataLoaded(true);
       }
     }
@@ -126,6 +131,11 @@ export default function Game() {
       if (upgrade_data) {
         setBuildingLevel('cursors', upgrade_data.cursorLevel);
         setBuildingLevel('factories', upgrade_data.factoryLevel);
+        setBuildingLevel('farms', upgrade_data.farmLevel);
+        setBuildingLevel('mines', upgrade_data.mineLevel);
+        setBuildingLevel('nuclearplants', upgrade_data.nuclearplantLevel);
+        setBuildingLevel('cryptominers', upgrade_data.cryptominerLevel);
+        setBuildingLevel('ballpits', upgrade_data.ballpitLevel);
         setHasUpgradeDataLoaded(true);
       }
     }
@@ -163,56 +173,19 @@ export default function Game() {
   }, []);
 
   return (
-    <div className="mt-12 mb-24 flex flex-col gap-4">
-      <Canvas gameState={gameState} />
+    <div className="mt-12 mb-24 flex flex-col gap-4 lg:w-full lg:flex-row lg:justify-between lg:px-12">
+      <div className="flex flex-col items-center">
+        <Canvas gameState={gameState} />
 
-      <p className="mt-8 text-2xl font-bold text-seasalt">
-        Clinks: {Math.round(clinks).toLocaleString('en-US')}
-      </p>
-
-      <UpgradeCard upgrade={'cursors'} gameState={gameState} />
-      <UpgradeCard upgrade={'mines'} gameState={gameState} />
-      <UpgradeCard upgrade={'factories'} gameState={gameState} />
-      <UpgradeCard upgrade={'farms'} gameState={gameState} />
-      <UpgradeCard upgrade={'nuclearplants'} gameState={gameState} />
-      <UpgradeCard upgrade={'cryptominers'} gameState={gameState} />
-      <UpgradeCard upgrade={'ballpits'} gameState={gameState} />
-
-      <div
-        className="flex h-20 w-96 cursor-pointer justify-between rounded-t-md border-4 border-ultra-violet bg-space-cadet p-2 hover:bg-slate-700"
-        onClick={() => {
-          const cost = getBuildingCost('rows', rows - 8);
-
-          if (gameState.clinks >= cost) {
-            gameState.setClinks(gameState.clinks - cost);
-            gameState.setRows((rows + 1) as RowCount);
-          }
-        }}
-      >
-        <div className="flex w-2/3 gap-2">
-          <Image
-            src={`/assets/Rows.webp`}
-            width={64}
-            height={64}
-            alt="Rows"
-            className="my-auto h-min w-1/6"
-          />
-          <div className="flex flex-col justify-center">
-            <p className="text-xl font-bold text-seasalt">
-              Cost: {getBuildingCost('rows', rows - 8).toLocaleString('en-US')}
-            </p>
-            <p className="text-xl font-bold text-seasalt">+1 Row</p>
-          </div>
+        <div className="mt-8 flex flex-col items-center text-4xl font-bold text-seasalt">
+          <p>Clinks:</p>
+          <p className="text-blush">
+            {Math.round(clinks).toLocaleString('en-US')}
+          </p>
         </div>
 
-        <div className="text-end">
-          <p className="text-xl font-bold text-seasalt">Level: {rows - 7}</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
         <button
-          className="w-48 rounded-lg bg-green-500 p-2"
+          className="mt-8 w-48 rounded-lg bg-green-500 p-2"
           onClick={() => {
             updateGameData.mutate({
               clinks: Math.round(clinks),
@@ -238,20 +211,49 @@ export default function Game() {
         >
           Save
         </button>
+      </div>
 
-        <button
-          className="w-48 rounded-lg bg-red-500 p-2"
+      <div className="mx-auto flex flex-col gap-2 lg:mx-0">
+        <UpgradeCard upgrade={'cursors'} gameState={gameState} />
+        <UpgradeCard upgrade={'mines'} gameState={gameState} />
+        <UpgradeCard upgrade={'factories'} gameState={gameState} />
+        <UpgradeCard upgrade={'farms'} gameState={gameState} />
+        <UpgradeCard upgrade={'nuclearplants'} gameState={gameState} />
+        <UpgradeCard upgrade={'cryptominers'} gameState={gameState} />
+        <UpgradeCard upgrade={'ballpits'} gameState={gameState} />
+
+        <div
+          className="flex h-20 w-96 cursor-pointer justify-between rounded-t-md border-4 border-ultra-violet bg-space-cadet p-2 hover:bg-slate-700"
           onClick={() => {
-            setClinks(0);
-            setRows(8);
-            setBuildingCount('cursors', 0);
-            setBuildingLevel('cursors', 1);
-            setBuildingCount('factories', 0);
-            setBuildingLevel('factories', 1);
+            const cost = getBuildingCost('rows', rows - 8);
+
+            if (gameState.clinks >= cost && gameState.rows < 20) {
+              gameState.setClinks(gameState.clinks - cost);
+              gameState.setRows((rows + 1) as RowCount);
+            }
           }}
         >
-          Reset
-        </button>
+          <div className="flex w-2/3 gap-2">
+            <Image
+              src={`/assets/Rows.webp`}
+              width={64}
+              height={64}
+              alt="Rows"
+              className="my-auto h-min w-1/6"
+            />
+            <div className="flex flex-col justify-center">
+              <p className="text-xl font-bold text-seasalt">
+                Cost:{' '}
+                {getBuildingCost('rows', rows - 8).toLocaleString('en-US')}
+              </p>
+              <p className="text-xl font-bold text-seasalt">+1 Row</p>
+            </div>
+          </div>
+
+          <div className="text-end">
+            <p className="text-xl font-bold text-seasalt">Level: {rows - 7}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
