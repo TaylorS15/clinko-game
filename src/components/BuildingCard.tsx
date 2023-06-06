@@ -15,7 +15,7 @@ export default function BuildingCard({
     farms: 'Farm',
     mines: 'Mine',
     nuclearplants: 'Nuclear Plant',
-    cryptominers: 'Cryptominer',
+    cryptominers: 'Crypto Miner',
     ballpits: 'Ball Pit',
   };
 
