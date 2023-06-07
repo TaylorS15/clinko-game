@@ -57,17 +57,17 @@ export const buildings: Buildings = {
     costScale: 1.15,
   },
   mines: {
-    cost: 300,
+    cost: 120,
     cps: 0.25,
     costScale: 1.15,
   },
   factories: {
-    cost: 2000,
+    cost: 1000,
     cps: 0.75,
     costScale: 1.15,
   },
   farms: {
-    cost: 7500,
+    cost: 5500,
     cps: 2.5,
     costScale: 1.15,
   },

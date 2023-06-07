@@ -1,6 +1,6 @@
 export default function Faq() {
   return (
-    <div className="flex max-w-3xl flex-col gap-4 pb-20 text-seasalt">
+    <div className="flex max-w-3xl flex-col gap-4 px-6 pb-20 text-seasalt">
       <p className="text-3xl font-bold">FAQ</p>
       <p className="text-2xl font-bold">
         What is Clinko?{' '}
@@ -15,12 +15,12 @@ export default function Faq() {
         <span className="text-xl text-cyan-700">
           <br></br>- Buildings have a set number of balls per second they drop
           and as you upgrade them the balls they drop are worth more!
-          <br></br>- Buildings cost points to produce balls! Every time a
-          building drops a ball it costs the equivalent amount of points to
-          produce that ball based on the level of that building. (A level 3
-          building costs 3 points to produce a ball.)
+          <br></br>- Buildings cost points to produce balls! A level 3 building
+          costs 3 points to produce a ball.
           <br></br>- Clicking is always free and produces balls at the level of
           the Cursors building!
+          <br></br>- As you increase the number of rows, the EV of each ball
+          dropped increases!
         </span>
       </p>
 
