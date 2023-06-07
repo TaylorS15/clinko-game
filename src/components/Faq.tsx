@@ -37,7 +37,13 @@ export default function Faq() {
       <p className="text-2xl font-bold">
         Who made Clinko?{' '}
         <span className="text-xl text-turquoise/60 hover:underline">
-          <a href="https://taylorsvec.com">Taylor Svec</a>
+          <a
+            href="https://taylorsvec.com"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Taylor Svec
+          </a>
         </span>
       </p>
     </div>
