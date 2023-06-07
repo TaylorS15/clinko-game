@@ -45,7 +45,7 @@ export default function BuildingCard({
             }.webp`}
             width={64}
             height={64}
-            alt="Cursor"
+            alt={upgrade}
             className="my-auto h-min w-1/6"
           />
           <div className="flex flex-col justify-center">
