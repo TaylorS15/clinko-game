@@ -173,7 +173,7 @@ export default function Game() {
   }, []);
 
   return (
-    <div className="mt-12 mb-24 flex flex-col gap-4 lg:w-full lg:flex-row lg:justify-between lg:px-12">
+    <div className="mt-12 mb-24 flex flex-col gap-4 lg:w-full lg:max-w-7xl lg:flex-row lg:justify-between lg:px-12">
       <div className="flex flex-col items-center">
         <Canvas gameState={gameState} />
 
