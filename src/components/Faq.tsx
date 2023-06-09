@@ -27,6 +27,14 @@ export default function Faq() {
       </p>
 
       <p className="text-2xl font-bold">
+        Do I need to click save?{' '}
+        <span className="text-xl text-cyan-700">
+          The game autosaves your progress every five minutes! You can also save
+          manually whenever you like.
+        </span>
+      </p>
+
+      <p className="text-2xl font-bold">
         Why was Clinko made?{' '}
         <span className="text-xl text-cyan-700">
           Primarily for learning by building a complicated web app with the T3
