@@ -14,4 +14,4 @@ A simple AFK game for the web built with the create-t3-app. Start with zero buil
 - Matter.js
 - Zod
 
-### Version 0.9.0
+### Version 0.9.5

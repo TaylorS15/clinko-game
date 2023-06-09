@@ -48,6 +48,19 @@ export default function Faq() {
           </a>
         </span>
       </p>
+
+      <p className="text-2xl font-bold">
+        Is Clinko open source?{' '}
+        <span className="text-xl text-turquoise/60 hover:underline">
+          <a
+            href="https://github.com/taylors15/clinko-game"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Yes!
+          </a>
+        </span>
+      </p>
     </div>
   );
 }
