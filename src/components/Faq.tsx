@@ -15,10 +15,12 @@ export default function Faq() {
         <span className="text-xl text-cyan-700">
           <br></br>- Buildings have a set number of balls per second they drop
           and as you upgrade them the balls they drop are worth more!
-          <br></br>- Buildings cost points to produce balls! A level 3 building
-          costs 3 points to produce a ball.
-          <br></br>- Clicking is always free and produces balls at the level of
-          the Cursors building!
+          {/* <br></br>- Buildings cost points to produce balls! A level 3 building
+          costs 3 points to produce a ball. */}
+          {/* <br></br>- Clicking is always free and produces balls at the level of
+          the Cursors building! */}
+          <br></br>- Clicking produces balls at the level of the Cursors
+          building!
           <br></br>- As you increase the number of rows, the EV of each ball
           dropped increases!
         </span>

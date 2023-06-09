@@ -215,7 +215,7 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
       20,
       {
         isStatic: true,
-        render: { fillStyle: '#eb2323' },
+        render: { fillStyle: '#1E1E1E' },
         slop: 0,
         label: 'Side Bucket',
       },
@@ -227,7 +227,7 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
       20,
       {
         isStatic: true,
-        render: { fillStyle: '#eb2323' },
+        render: { fillStyle: '#1E1E1E' },
         slop: 0,
         label: 'Side Bucket',
       },
@@ -362,8 +362,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.cursors.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.cursors.level;
+          // gameStateRef.current.clinks -=
+          //   gameStateRef.current.buildings.cursors.level;
           Composite.add(world, ball);
           lastCursorTick = cursorIntervalTickRef.current;
         }
@@ -401,8 +401,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.factories.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.factories.level;
+          // gameStateRef.current.clinks -=
+          //   gameStateRef.current.buildings.factories.level;
           Composite.add(world, ball);
           lastFactoryTick = factoryIntervalTickRef.current;
         }
@@ -440,8 +440,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.mines.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.mines.level;
+          // gameStateRef.current.clinks -=
+          // gameStateRef.current.buildings.mines.level;
           Composite.add(world, ball);
           lastMineTick = mineIntervalTickRef.current;
         }
@@ -479,8 +479,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.farms.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.farms.level;
+          // gameStateRef.current.clinks -=
+          //   gameStateRef.current.buildings.farms.level;
           Composite.add(world, ball);
           lastFarmTick = farmIntervalTickRef.current;
         }
@@ -518,8 +518,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.nuclearplants.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.nuclearplants.level;
+          // gameStateRef.current.clinks -=
+          //   gameStateRef.current.buildings.nuclearplants.level;
           Composite.add(world, ball);
           lastNuclearPlantTick = nuclearPlantIntervalTickRef.current;
         }
@@ -557,8 +557,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.cryptominers.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.cryptominers.level;
+          // gameStateRef.current.clinks -=
+          //   gameStateRef.current.buildings.cryptominers.level;
           Composite.add(world, ball);
           lastCryptoMinerTick = cryptoMinerIntervalTickRef.current;
         }
@@ -596,8 +596,8 @@ export default function Canvas({ gameState }: { gameState: GameState }) {
           gameStateRef.current.clinks >=
           gameStateRef.current.buildings.ballpits.level
         ) {
-          gameStateRef.current.clinks -=
-            gameStateRef.current.buildings.ballpits.level;
+          // gameStateRef.current.clinks -=
+          //   gameStateRef.current.buildings.ballpits.level;
           Composite.add(world, ball);
           lastBallPitTick = ballPitIntervalTickRef.current;
         }
