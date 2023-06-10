@@ -58,7 +58,7 @@ export const buildings: Buildings = {
   },
   mines: {
     cost: 120,
-    cps: 0.25,
+    cps: 0.2,
     costScale: 1.15,
   },
   factories: {
@@ -73,17 +73,17 @@ export const buildings: Buildings = {
   },
   nuclearplants: {
     cost: 30000,
-    cps: 10,
+    cps: 8,
     costScale: 1.15,
   },
   cryptominers: {
     cost: 200000,
-    cps: 20,
+    cps: 25,
     costScale: 1.15,
   },
   ballpits: {
     cost: 1000000,
-    cps: 50,
+    cps: 90,
     costScale: 1.15,
   },
   rows: {
